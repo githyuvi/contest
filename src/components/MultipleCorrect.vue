@@ -1,0 +1,179 @@
+<script>
+import { ref } from 'vue'
+import { reactive } from 'vue'
+
+    export default {
+        props: ['question','options','selectedToggle', 'optionsSelected'],
+        data() {
+            return {
+                
+            }
+        },
+        methods: {
+            sendData(index) {
+                if(this.selectedToggle[index] == 'selected'){
+                    this.selectedToggle[index] = ''
+                    this.optionsSelected.splice(this.optionsSelected.indexOf(this.options[index].id), 1)
+                }
+                else {
+                    this.selectedToggle[index] = 'selected'
+                    this.optionsSelected.push(this.options[index].id)
+                }                
+                console.log('emitoptionsselected',this.optionsSelected)
+                this.$emit('get-options-selected' , this.optionsSelected);
+            },
+
+        }
+    }
+</script>
+
+<template v-cloak>
+    <div class="wrapper" style="text-align: center;">
+    <header>{{ question }}</header>
+    
+    <div class="poll-area" >
+        <div v-for='option in options' :key='option.id'>
+            <input type="radio" name="poll" :id="'opt-' + option.id" :value="option.id" >
+            <label :for="'opt-' + option.id" :class="'opt-' + option.id" @click="sendData(option.index)" v-bind:class="selectedToggle[option.index]"  >
+                <div class="row">
+                    <div class="column">
+                        <span class="circle"></span>
+                        <span class="text">{{ option.label }}</span>
+                    </div>
+                </div>
+            </label>
+
+        </div>
+
+    </div>
+        
+    
+  </div>
+</template>
+
+<style scoped>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #6665ee;
+}
+::selection{
+  color: #fff;
+  background: #6665ee;
+}
+.wrapper{
+  /* background: #fff; */
+  border-radius: 15px;
+  padding: 25px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: 0px 5px 10px rgba(0,0,0,0.1);
+}
+.wrapper header{
+  font-size: 22px;
+  font-weight: 600;
+}
+.wrapper .poll-area{
+  margin: 20px 0 15px 0;
+}
+.poll-area label{
+  display: block;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 8px 15px;
+  border: 2px solid #e6e6e6;
+  transition: all 0.2s ease;
+}
+/* .poll-area label:hover{
+  border-color: #ddd;
+} */
+label.selected{
+  border-color: #6665ee!important;
+}
+label .row{
+  display: flex;
+  pointer-events: none;
+  justify-content: space-between;
+}
+label .row .column{
+  display: flex;
+  align-items: center;
+}
+label .row .circle{
+  height: 19px;
+  width: 19px;
+  display: block;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  margin-right: 10px;
+  position: relative;
+}
+label.selected .row .circle{
+  border-color: #6665ee;
+}
+label .row .circle::after{
+  content: "";
+  height: 11px;
+  width: 11px;
+  background: #6665ee;
+  border-radius: inherit;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  display: none;
+}
+.poll-area label:hover .row .circle::after{
+  display: block;
+  background: #e6e6e6;
+}
+label.selected .row .circle::after{
+  display: block;
+  background: #6665ee!important;
+}
+label .row span{
+  font-size: 16px;
+  font-weight: 500;
+}
+label .row .percent{
+  display: none;
+}
+label .progress{
+  height: 7px;
+  width: 100%;
+  position: relative;
+  background: #f0f0f0;
+  margin: 8px 0 3px 0;
+  border-radius: 30px;
+  display: none;
+  pointer-events: none;
+}
+label .progress:after{
+  position: absolute;
+  content: "";
+  height: 100%;
+  background: #ccc;
+  width: calc(1% * var(--w));
+  border-radius: inherit;
+  transition: all 0.2s ease;
+}
+label.selected .progress::after{
+  background: #6665ee;
+}
+label.selectall .progress,
+label.selectall .row .percent{
+  display: block;
+}
+input[type="radio"],
+input[type="checkbox"]{
+  display: none;
+}
+</style>
