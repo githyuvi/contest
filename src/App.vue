@@ -112,6 +112,7 @@ const hangelIsRegistered = (user) => {
               <li class="nav__item"><router-link to="/"> Home </router-link></li>
               <li class="nav__item"><router-link to="/poll"> Poll </router-link></li>
               <li class="nav__item"><router-link to="/pollresults"> Poll Results </router-link></li>
+              <li class="nav__item"><router-link to="/q7"> q7 </router-link></li>
               <!-- <li class="nav__item"><router-link to="/q4"> Q4 </router-link></li> -->
             </ul>
           </nav>
