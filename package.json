@@ -23,7 +23,10 @@
     "vue-router": "^4.2.0",
     "vue-scrollto": "^2.20.0",
     "vue2-editor": "^2.10.3",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "firebase-admin": "^11.8.0",
+    "googleapis": "^118.0.0"
+
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
