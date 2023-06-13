@@ -17,6 +17,7 @@ const routesData = [
     ['/chk', 'Chk'],
     ['/q6','q6'],
     ['/q7','q7'],
+    ['/imagepreview','ImagePreview']
     
 ]
 
@@ -50,6 +51,7 @@ routes[9].component = () => import("../views/q5tiptap.vue")
 routes[10].component = () => import("../views/Chk.vue")
 routes[11].component = () => import("../views/q6.vue")
 routes[12].component = () => import("../views/q7.vue")
+routes[13].component = () => import("../views/ImagePreview.vue")
 
 
 const router = createRouter( {
