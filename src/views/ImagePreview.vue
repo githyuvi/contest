@@ -5,7 +5,7 @@ const handleFileUpload = (event) => {
     const files = event.target.files;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.size <= 1048576) { // 1MB size capacity limit (in bytes)
+        if (file.size <= 1048576*5) { // 1MB size capacity limit (in bytes)
           readFile(file)
             .then(result => {
               images.push({
@@ -52,68 +52,6 @@ const remove = (index) => {
     images.splice(index, 1);
   }
 
-// const handleImageUpload = () => {
-//       const files = this.$refs.fileInput.files;
-//       for (let i = 0; i < files.length; i++) {
-//         const file = files[i];
-//         if (file.size <= 1048576) { // 1MB size capacity limit (in bytes)
-//           const reader = new FileReader();
-//           reader.onload = () => {
-//             images.push({
-//               name: file.name,
-//               url: reader.result
-//             });
-//           };
-//           reader.readAsDataURL(file);
-//         } else {
-//           alert(`File ${file.name} exceeds the size limit of 1MB.`);
-//         }
-//       }
-//     }
-
-const openCamera =()=> {
-      const constraints = { video: true, audio: false };
-
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-          const track = stream.getVideoTracks()[0];
-          const imageCapture = new ImageCapture(track);
-
-          imageCapture.takePhoto()
-            .then(blob => {
-              const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
-              processFiles([file]);
-            })
-            .catch(error => {
-              console.error('Error taking photo:', error);
-            })
-            .finally(() => {
-              track.stop();
-            });
-        })
-        .catch(error => {
-          console.error('Error accessing camera:', error);
-        });
-    }
-const processFiles =(files) =>{
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.size <= 1048576) { // 1MB size capacity limit (in bytes)
-          const reader = new FileReader();
-          reader.onload = () => {
-            images.push({
-              name: file.name,
-              url: reader.result
-            });
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert(`File ${file.name} exceeds the size limit of 1MB.`);
-        }
-      }
-    }
-
-
 </script>
 
 <template>
@@ -125,10 +63,6 @@ const processFiles =(files) =>{
         <img :src="image.url" :alt="image.name" width="200">
         <button @click="remove(index)">remove</button>
         </div>
-
-        <button @click="openCamera" :disabled="images.length >= 5">Camera Upload</button>
         <button @click="submitImages">Submit Images</button>
     </div>
-
-    
 </template>
