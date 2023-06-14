@@ -12,7 +12,7 @@
     <div class="slide-container">
       <div class="slide-wrapper">
         <div class="slide-item" v-for="(file, index) in files" :key="index">
-          <img :src="file.url" :alt="file.name" style="height: 50vh; width: fit-content;"/>
+          <img :src="file.url" :alt="file.name" style="height: 70vh; width: fit-content;"/>
           <div></div>
           <button @click="removeFile(index)">Remove</button>
         </div>
