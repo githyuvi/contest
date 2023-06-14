@@ -1,11 +1,11 @@
 <template>
     <div>
-      <input type="file" ref="fileInput" accept="image/*" multiple @change="handleFileUpload">
+      <input hidden type="file" ref="fileInput" accept="image/*" multiple @change="handleFileUpload">
       <!-- <div v-for="(file, index) in files" :key="index" style="width: 50vw;">
         <img :src="file.url" :alt="file.name" >
         <button @click="removeFile(index)">Remove</button>
       </div> -->
-      <button @click="addMoreFiles" :disabled="files.length >= 5">Add More Files</button>
+      <button @click="addMoreFiles" :disabled="files.length >= 5">Add Files</button>
       <button @click="submitFiles" :disabled="files.length === 0">Submit</button>
     </div>
     <div class="slide">
