@@ -1,13 +1,24 @@
 <template>
     <div>
       <input type="file" ref="fileInput" accept="image/*" multiple @change="handleFileUpload">
-      <div v-for="(file, index) in files" :key="index">
-        <img :src="file.url" :alt="file.name" width="200">
+      <!-- <div v-for="(file, index) in files" :key="index" style="width: 50vw;">
+        <img :src="file.url" :alt="file.name" >
         <button @click="removeFile(index)">Remove</button>
-      </div>
+      </div> -->
       <button @click="addMoreFiles" :disabled="files.length >= 5">Add More Files</button>
       <button @click="submitFiles" :disabled="files.length === 0">Submit</button>
     </div>
+    <div class="slide">
+    <div class="slide-container">
+      <div class="slide-wrapper">
+        <div class="slide-item" v-for="(file, index) in files" :key="index">
+          <img :src="file.url" :alt="file.name" style="width: 100%;"/>
+          <button @click="removeFile(index)">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
   
   <script>
@@ -78,7 +89,48 @@
       submitFiles() {
         // Logic to submit the files to the server
         console.log(this.files)
-      }
+      },
     }
   };
   </script>
+
+<style scoped>
+.slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slide-container {
+  width: 100%;
+  overflow-x: auto;
+  height: 60vh;
+}
+
+.slide-wrapper {
+  display: flex;
+}
+
+.slide-item {
+  flex-shrink: 0;
+  /* width: 200px; */
+  height: 50vh;
+  margin-right: 10px;
+}
+
+.slide-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.controls {
+  margin-top: 10px;
+  text-align: center;
+}
+
+button {
+  margin: 0 5px;
+}
+</style>
+
