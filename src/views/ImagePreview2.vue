@@ -12,7 +12,8 @@
     <div class="slide-container">
       <div class="slide-wrapper">
         <div class="slide-item" v-for="(file, index) in files" :key="index">
-          <img :src="file.url" :alt="file.name" />
+          <img :src="file.url" :alt="file.name" style="height: 50vh; width: fit-content;"/>
+          <div></div>
           <button @click="removeFile(index)">Remove</button>
         </div>
       </div>
@@ -104,7 +105,9 @@
 .slide-container {
   width: 100%;
   overflow-x: auto;
-  height: 60vh;
+  /* height: 80vh; */
+  padding-bottom: 40px;
+  padding-top: 40px;
 }
 
 .slide-wrapper {
@@ -114,7 +117,8 @@
 .slide-item {
   flex-shrink: 0;
   /* width: 200px; */
-  height: 50vh;
+  /* height: 50vh; */
+  /* height: 70vh; */
   margin-right: 10px;
 }
 
