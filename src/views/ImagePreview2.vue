@@ -8,11 +8,11 @@
     <div class="slide">
     <div class="slide-container">
       <div class="slide-wrapper">
-        <div class="slide-item" v-for="(file, index) in files" :key="index">
+        <!-- <div class="slide-item" v-for="(file, index) in files" :key="index">
           <img :src="file.url" :alt="file.name" style="height: 60vh; width: fit-content;"/>
           <div></div>
           <button @click="removeFile(index)">Remove</button>
-        </div>
+        </div> -->
       </div>
     </div>
 </div>
@@ -44,12 +44,34 @@
 
 
 <button @click="getData">getData</button>
-<VDContainer :data="files"><template v-slot:VDC="{data,index}"></template></VDContainer>
+<!-- <div class="slide-wrapper"> -->
+  <div class="slide">
+    <div class="slide-container">
+<draggable v-model="files" class="slide-wrapper">
+  
+        <transition-group>
+        <div class="slide-item" v-for="(file, index) in files" :key="index">
+          <img :src="file.url" :alt="file.name" style="height: 30vh; width: fit-content;"/>
+          <div></div>
+          <button @click="removeFile(index)">Remove</button>
+        </div>
+      </transition-group>
+     
+      
+    </draggable>
+  <!-- </div> -->
+</div>
+      </div>
 
 </template>
   
   <script>
+  import { VueDraggableNext } from "vue-draggable-next";
   export default {
+    components: {
+      draggable: VueDraggableNext,
+
+    },
     data() {
       return {
         files: []
