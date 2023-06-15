@@ -4,23 +4,23 @@
       <button @click="addMoreFiles" :disabled="files.length >= 5">Add Files</button>
       <button @click="submitFiles" :disabled="files.length === 0">Submit</button>
     </div>
-    
-    <div class="slide">
-    <div class="slide-container">
+<!--     
+<div class="slide">
+    <div class="slide-container" >
       <div class="slide-wrapper">
-        <!-- <div class="slide-item" v-for="(file, index) in files" :key="index">
+        <div class="slide-item" v-for="(file, index) in files" :key="index">
           <img :src="file.url" :alt="file.name" style="height: 60vh; width: fit-content;"/>
           <div></div>
           <button @click="removeFile(index)">Remove</button>
-        </div> -->
+        </div>
       </div>
     </div>
-</div>
+</div> -->
     
   
 
 <!-- <div class="slide-wrapper"> -->
-  <VDContainer
+  <!-- <VDContainer
        
     :data=files      
     
@@ -29,14 +29,14 @@
     >
     
     <template v-slot:VDC="{data, index}">
-        <!-- <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
+        <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
         <div></div>
-        <button @click="removeFile(index)">Remove</button> -->
+        <button @click="removeFile(index)">Remove</button>
         {{  data.name }}
     
     </template>
     
-  </VDContainer>
+  </VDContainer> -->
 
   
 
@@ -46,7 +46,7 @@
 <button @click="getData">getData</button>
 <!-- <div class="slide-wrapper"> -->
   <div class="slide">
-    <div class="slide-container">
+    <div class="slide-container" v-if="files.length > 0">
 <draggable v-model="files" class="slide-wrapper" >
   
         <transition-group>
@@ -160,11 +160,16 @@
 }
 
 .slide-container {
-  width: 100%;
+  width: 98%;
   overflow-x: auto;
+  margin: 1px;
   /* height: 80vh; */
-  padding-bottom: 40px;
-  padding-top: 40px;
+  /* padding-bottom: 40px;
+  padding-top: 40px; */
+  border: solid #d12f2f;
+  border-width: 0.4vw;
+  border-radius: 10px;
+  padding: 30px 10px 40vw 10px;
 }
 
 .slide-wrapper {
