@@ -18,7 +18,9 @@ const routesData = [
     ['/q6','q6'],
     ['/q7','q7'],
     ['/imagepreview','ImagePreview'],
-    ['/imagepreview2','ImagePreview2']
+    ['/imagepreview2','ImagePreview2'],
+    ['/imagepreview3','ImagePreview3'],
+    ['/imagepreview4','ImagePreview4'],
     
 ]
 
@@ -54,6 +56,8 @@ routes[11].component = () => import("../views/q6.vue")
 routes[12].component = () => import("../views/q7.vue")
 routes[13].component = () => import("../views/ImagePreview.vue")
 routes[14].component = () => import("../views/ImagePreview2.vue")
+routes[15].component = () => import("../views/ImagePreview3.vue")
+routes[16].component = () => import("../views/ImagePreview4.vue")
 
 
 const router = createRouter( {

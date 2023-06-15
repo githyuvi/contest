@@ -104,7 +104,7 @@ export default {
         // this.saveAndNext()
         console.log('optionsSelected', this.optionsSelected)
         set(
-          firebaseRef(this.db, "poll/" + this.userId + "/" + this.questionLocation),
+          firebaseRef(this.db, "answers/" + this.userId + "/" + this.questionLocation),
           this.optionsSelected
         )
         .then((value) => {

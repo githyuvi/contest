@@ -16,11 +16,6 @@ const userImageUrl = computed(() => store.state.userImageUrl)
 const isLoggedIn = ref(false);
 let auth;
 
-
-
-
-
-
 onMounted(() => {
 
   let navToggle = document.querySelector(".nav__toggle");
@@ -112,6 +107,8 @@ const hangelIsRegistered = (user) => {
               <li class="nav__item"><router-link to="/"> Home </router-link></li>
               <li class="nav__item"><router-link to="/imagepreview"> Image Preview </router-link></li>
               <li class="nav__item"><router-link to="/imagepreview2"> Image Preview 2 </router-link></li>
+              <li class="nav__item"><router-link to="/imagepreview3"> Image Preview 3 </router-link></li>
+              <li class="nav__item"><router-link to="/imagepreview4"> Image Preview 4 </router-link></li>
               <li class="nav__item"><router-link to="/poll"> Poll </router-link></li>
               <li class="nav__item"><router-link to="/pollresults"> Poll Results </router-link></li>
               <li class="nav__item"><router-link to="/q7"> q7 </router-link></li>

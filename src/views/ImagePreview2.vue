@@ -1,13 +1,10 @@
 <template>
     <div>
       <input hidden type="file" ref="fileInput" accept="image/*" multiple @change="handleFileUpload">
-      <!-- <div v-for="(file, index) in files" :key="index" style="width: 50vw;">
-        <img :src="file.url" :alt="file.name" >
-        <button @click="removeFile(index)">Remove</button>
-      </div> -->
       <button @click="addMoreFiles" :disabled="files.length >= 5">Add Files</button>
       <button @click="submitFiles" :disabled="files.length === 0">Submit</button>
     </div>
+    
     <div class="slide">
     <div class="slide-container">
       <div class="slide-wrapper">
@@ -18,7 +15,35 @@
         </div>
       </div>
     </div>
-  </div>
+</div>
+    
+  
+
+<!-- <div class="slide-wrapper"> -->
+  <VDContainer
+       
+    :data=files      
+    
+    type="sort"        
+    @getData=funcName  
+    >
+    
+    <template v-slot:VDC="{data, index}">
+        <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
+        <div></div>
+        <button @click="removeFile(index)">Remove</button>
+    
+    </template>
+    
+  </VDContainer>
+
+  
+
+<!-- </div> -->
+
+
+<button @click="getData">getData</button>
+<VDContainer :data="files"><template v-slot:VDC="{data,index}"></template></VDContainer>
 
 </template>
   
@@ -32,6 +57,7 @@
     methods: {
       handleFileUpload() {
         const files = this.$refs.fileInput.files;
+        console.log('files', files)
         this.processFiles(files);
       },
       processFiles(files) {
@@ -83,6 +109,14 @@
       },
       removeFile(index) {
         this.files.splice(index, 1);
+        const fileInput = this.$refs.fileInput;
+        const selectedFiles = Array.from(fileInput.files);
+        selectedFiles.splice(index, 1);
+        fileInput.value = '';
+
+        // Reassign the updated file list to the `files` property of the `this.$refs.fileInput` element
+        // fileInput.files = new DataTransfer().files.concat(selectedFiles);
+
       },
       addMoreFiles() {
         this.$refs.fileInput.click();
@@ -97,9 +131,9 @@
 
 <style scoped>
 .slide {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .slide-container {
@@ -121,12 +155,12 @@
   /* height: 70vh; */
   margin-right: 10px;
 }
-
+/* 
 .slide-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
+} */
 
 .controls {
   margin-top: 10px;
