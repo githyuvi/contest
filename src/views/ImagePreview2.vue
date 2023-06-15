@@ -47,7 +47,7 @@
 <!-- <div class="slide-wrapper"> -->
   <div class="slide">
     <div class="slide-container">
-<draggable v-model="files" class="slide-wrapper">
+<draggable v-model="files" class="slide-wrapper" >
   
         <transition-group>
         <div class="slide-item" v-for="(file, index) in files" :key="index">
@@ -169,6 +169,13 @@
 
 .slide-wrapper {
   display: flex;
+}
+.slide-item:hover {
+  border-width: 10px;
+  border-color: red;
+  border-style: solid;
+  box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 .slide-item {
