@@ -29,9 +29,10 @@
     >
     
     <template v-slot:VDC="{data, index}">
-        <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
+        <!-- <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
         <div></div>
-        <button @click="removeFile(index)">Remove</button>
+        <button @click="removeFile(index)">Remove</button> -->
+        {{  data.name }}
     
     </template>
     
