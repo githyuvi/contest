@@ -11,7 +11,14 @@ import {
   
 } from "firebase/database";
 import store from "../store";
-
+/* props
+* question: String, That string can consist of html tags, so the string will be rendered as html
+* answers: Array of strings, each string is an answer, will be pushed as a label in option object
+* questionLocation: String, the location of the question in the database
+* buttons: Array of strings, each string is a button name, supports up to 3 buttons
+  * if buttons is empty, no buttons will be rendered
+  * supported buttons: 'Previous', 'Save and Next', 'Next'  
+*/
 export default {
   components: { MultipleCorrectVue },
   props: {
@@ -55,7 +62,7 @@ export default {
     this.selectedToggle = this.getToggles();
     this.options = this.initializeOptions(this.answers);
     this.userId = computed(() => this.store.state.userId);
-    get(child(this.dbRef, `poll/` + this.userId + "/" + this.questionLocation))
+    get(child(this.dbRef, `answers/` + this.userId + "/" + this.questionLocation))
       .then((snapshot) => {
         if (snapshot.exists()) {
           const userAnswers = snapshot.val();

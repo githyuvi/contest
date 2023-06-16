@@ -1,7 +1,12 @@
 <script>
 import { ref } from 'vue'
 import { reactive } from 'vue'
-
+/* props
+* question: String, That string can consist of html tags, so the string will be rendered as html
+* options: Array of objects, each object has an id and a text property
+* selectedToggle: Array of strings, each string is either 'selected' or ''
+* optionsSelected: Array of strings, each string is an id of an option
+*/
     export default {
         props: ['question','options','selectedToggle', 'optionsSelected'],
         data() {
@@ -29,8 +34,8 @@ import { reactive } from 'vue'
 
 <template v-cloak>
     <div class="wrapper" style="text-align: center;">
-    <header>{{ question }}</header>
-    
+    <!-- <header>{{ question }}</header> -->
+    <div v-html="question"></div>
     <div class="poll-area" >
         <div v-for='option in options' :key='option.id'>
             <input type="radio" name="poll" :id="'opt-' + option.id" :value="option.id" >
@@ -49,6 +54,7 @@ import { reactive } from 'vue'
         
     
   </div>
+  
 </template>
 
 <style scoped>
