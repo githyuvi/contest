@@ -49,7 +49,7 @@ routesData.forEach((routeData) => {
 routes[0].meta.requiresAuth = false
 // routes[1].meta.requiresAuth = false
 routes[2].meta.requiresAuth = false
-routes[24].meta.requiresRegistration = true
+// routes[24].meta.requiresRegistration = true
 
 // //manually importing files as build cannot read dynamically imported files
 // routes[0].component = () => import("../views/HomeView.vue")
