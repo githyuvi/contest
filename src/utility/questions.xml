@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+<question>
+    <type>sc</type><!-- single correct-->
+    <order>1</order>
+    <marks>1</marks>
+    <text>What is the capital of france?</text>
+    <option>Paris</option> <!-- option 1 -->
+    <option>Berlin</option>
+    <option>London</option>
+    <option>Madrid</option>
+    <correctAnswer>1</correctAnswer>
+</question>
+<question>
+    <type>mc</type><!-- multiple correct-->
+    <order>2</order>
+    <marks>1</marks>
+    <questionContent>
+        <text>Which of these are indian cities</text>
+        <image>india.png</image>
+        <text>Select the correct options</text>
+    </questionContent>
+    <option>Paris</option> <!-- option 1 -->
+    <option>Mumbai</option>
+    <option>Chennai</option>
+    <option>Kolkata</option>
+    <correctAnswer>2</correctAnswer>
+    <correctAnswer>3</correctAnswer>
+    <correctAnswer>4</correctAnswer>
+</question>
+<question>
+    <type>scd</type><!-- single correct descriptive-->
+    <order>3</order>
+    <marks>1</marks>
+    <text>What is the capital of France?</text>
+    <option>Paris</option> <!-- option 1 -->
+    <option>Berlin</option>
+    <option>London</option>
+    <option>Madrid</option>
+    <correctAnswer>1</correctAnswer>
+</question>
+<question>
+    <type>mcd</type><!-- multiple correct descriptive-->
+    <order>4</order>
+    <marks>1</marks>
+    <text>Which of these are indian cities</text>
+    <option>Paris</option> <!-- option 1 -->
+    <option>Mumbai</option>
+    <option>Chennai</option>
+    <option>Kolkata</option>
+    <correctAnswer>2</correctAnswer>
+    <correctAnswer>3</correctAnswer>
+    <correctAnswer>4</correctAnswer>
+</question>
+</library>

@@ -22,10 +22,63 @@ const login = () => {
 
 <template>
     <div style="text-align: center;">
-        
-        <p>Welcome to contests. Please login and then fill registration details to view and answer questions</p>
-        <button style="width: 150px; height: 40px;" @click="login" v-if="!receivedIsLoggedIn"> Login/Register </button>
+        <div class="contest-list">
+        <div class="contest-section">
+            <h2>Ongoing Contests</h2>
+            <div class="contest">
+                <div class="title"><router-link to="/live1"> Live 1 </router-link></div>
+                <div class="description">Description of Live 1</div>
+                <div class="date">Started: May 10, 2023</div>
+            </div>
+        </div>
+    </div>
         
     </div>
     
 </template>
+
+<style scoped>
+    body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        .contest-list {
+            margin-top: 30px;
+        }
+        
+        .contest-section {
+            margin-bottom: 30px;
+        }
+        
+        .contest-section h2 {
+            margin-bottom: 10px;
+        }
+        
+        .contest {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .contest .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .contest .description {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .contest .date {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+</style>

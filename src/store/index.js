@@ -45,33 +45,34 @@ const store = createStore({
 })
 
 const storedIsLoggedIn = localStorage.getItem('isLoggedIn');
-if (storedIsLoggedIn) {
+if (storedIsLoggedIn == 'true') {
+  console.log('storedisloggedin', storedIsLoggedIn)
   store.commit('setIsLoggedIn', JSON.parse(storedIsLoggedIn));
 }
 
 const storedIsRegistered = localStorage.getItem('isRegistered');
-if (storedIsLoggedIn) {
+if (storedIsLoggedIn == 'true') {
   store.commit('setIsRegistered', JSON.parse(storedIsRegistered));
 }
 
 const storedUserId = localStorage.getItem('userId');
-if (storedIsLoggedIn) {
+if (storedIsLoggedIn == 'true') {
   store.commit('setUserId', JSON.parse(storedUserId));
   console.log("storedUserId", storedUserId)
 }
 
 const storedUserName = localStorage.getItem('userName');
-if (storedUserName) {
+if (storedIsLoggedIn == 'true') {
   store.commit('setUsername', JSON.parse(storedUserName));
 }
 
 const storedUserEmail = localStorage.getItem('userEmail');
-if (storedUserEmail) {
+if (storedIsLoggedIn == 'true') {
   store.commit('setUserEmail', JSON.parse(storedUserEmail));
 }
 
 const storedUserImageUrl = localStorage.getItem('userImageUrl');
-if (storedUserEmail) {
+if (storedIsLoggedIn == 'true') {
   store.commit('setUserImageUrl', JSON.parse(storedUserImageUrl));
 }
 

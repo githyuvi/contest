@@ -1,36 +1,80 @@
-<script>
-import { ref } from 'vue'
-import { reactive } from 'vue'
+<script setup>
+import { onMounted, ref } from 'vue'
+import { getStorage, ref as firebaseStorageRef, getDownloadURL} from "firebase/storage";
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 
-    export default {
-        props: ['question','options','selectedToggle'],
-        data() {
-            return {
-                optionSelected: '',
-            }
-        },
-        methods: {
-            sendData(index) {
-                this.selectedToggle[index] = 'selected'
-                for(var i = 0;i<this.selectedToggle.length;i++) {
-                    if(i == index){
-                        this.selectedToggle[i] = 'selected'
-                    }
-                    else {
-                        this.selectedToggle[i] = ''
-                    }
-                }
-                this.optionSelected = this.options[index].id
-                this.$emit('get-option-selected' , this.optionSelected);
-            },
+const store = useStore()
+const userId = computed(() => store.state.userId)
+const storage = getStorage();
 
+const props = defineProps({
+    questionOrder: String,
+    question: Array,
+    options: Array,
+    selectedToggle: Array,
+    contestType: String,
+    contestName: String,
+})
+
+const questionHtml = ref('')
+const  downloaded = ref(false)
+var optionSelected = ''
+const emits = defineEmits(['get-options-selected'])
+
+const sendData = (index) => {
+
+  props.selectedToggle[index] = 'selected'
+    for(var i = 0;i<props.selectedToggle.length;i++) {
+        if(i == index){
+          props.selectedToggle[i] = 'selected'
+        }
+        else {
+          props.selectedToggle[i] = ''
         }
     }
-</script>
+    optionSelected = props.options[index].id
+    emits('get-option-selected' , optionSelected);
+}
+onMounted(async () => {
+  questionHtml.value += '<span style="align-self: flex-start;">'+ props.questionOrder + '. </span>'
+  var baseReference
+  if(props.contestType == 'democontest')
+  baseReference = 'democontest/' + userId.value + '/' + props.contestName + '/'
+  if(props.contestType == 'livecontest')
+  baseReference = 'livecontest/' + props.contestName + '/'
+      const questionArray = Array.from(Object.values(props.question))[0]
+      
+      for(let i = 0; i < questionArray.length; i++){
+        var objectkey = Object.keys(questionArray[i])[0]
+        
+        if(objectkey == 'text')
+        questionHtml.value += '<div>' + questionArray[i][objectkey] + '</div>'
+        else if(objectkey == 'image') {
+          var imageUrl
+          var pathReference
+          pathReference = firebaseStorageRef(storage, baseReference + questionArray[i][objectkey]); 
+          await getDownloadURL(pathReference)
+          .then((url) => {
+            imageUrl = url
+          })
+          .catch((error) => {
+            // Handle any errors
+          });
+          questionHtml.value += '<img style="max-width:98%;max-height:80vh" src="' + imageUrl + '">'
+        }
+      }
+      downloaded.value = true
+})
 
+   
+
+</script>
 <template v-cloak>
-    <div class="wrapper" style="text-align: center;">
-    <header>{{ question }}</header>
+  <div class="wrapper" v-if="downloaded">
+    <!-- <header>{{ question }}</header> -->
+    <div v-html="questionHtml"></div>
+    
     
     <div class="poll-area" >
         <div v-for='option in options' :key='option.id'>
@@ -50,6 +94,7 @@ import { reactive } from 'vue'
         
     
   </div>
+  <!-- <VueMathjax :formula="latex"/> -->
 </template>
 
 <style scoped>
@@ -74,9 +119,10 @@ body{
 .wrapper{
   /* background: #fff; */
   border-radius: 15px;
-  padding: 25px;
-  max-width: 380px;
+  padding: 2px;
+  /* max-width: fit-content; */
   width: 100%;
+  max-width: 900px;
   box-shadow: 0px 5px 10px rgba(0,0,0,0.1);
 }
 .wrapper header{

@@ -26,7 +26,7 @@
             store.commit('setUserImageUrl', result.user.photoURL)
 
             console.log("dbref after store.commit" + dbRef)
-            router.push('/poll')
+            router.push('/')
             // get(child(dbRef, `users/` + result.user.uid)).then((snapshot) => {
             //     if (snapshot.exists()) {
             //         console.log("dbref after get request" + dbRef)

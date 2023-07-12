@@ -2,6 +2,8 @@
 import SingleCorrectVue from "./SingleCorrect.vue";
 import { useStore } from "vuex";
 import { computed, onMounted, reactive, ref } from "vue";
+import ImagePreviewVue from "./ImagePreview.vue";
+import { getStorage , ref as firebaseStorageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 import {
   getDatabase,
   ref as firebaseRef,
@@ -10,6 +12,7 @@ import {
   child,
   
 } from "firebase/database";
+
 
 const store = useStore();
 const db = getDatabase();
@@ -31,6 +34,7 @@ const isLoggedIn = computed(() => store.state.isLoggedIn)
 var options = reactive([])
 var selectedToggle = reactive([])
 var optionSelected = ref('')
+var files = []
 
 onMounted(async() => {
   initializeOptions(props.answers);
@@ -73,19 +77,39 @@ defineExpose({
     if(optionSelected == ''){
         alert('Please select an option')
         return
-      }
+    }
+    await set(
+      firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/options"),
+      optionSelected
+      )
+      .then((result) => {
+        // router.push('./pollresults')
+        console.log('value', result)
+      })
+      .catch((e) => {
+        console.log(e.message);
+        alert("Submit error. Couldn't submit the answer");
+      });
+    if(files.length > 0){
+        console.log('files length', files.length)
+      await set( firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/images/"),null)
+      const storage = getStorage();
+      var storageRef
+      for(let i = 0;i<files.length;i++){
+        storageRef = firebaseStorageRef(storage, "livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/" + files[i].name);
+        await uploadBytes(storageRef, files[i]).then(async (snapshot) => {
+            console.log('Uploaded a blob or file!');
+        })
+        .catch((error) => {
+            console.log(error.message);
+            alert("Submit error. Couldn't submit the answer");
+        });
         await set(
-            firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/options"),
-            optionSelected
+            firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/images/" + i),
+            "livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/" + files[i].name
           )
-          .then((result) => {
-              // router.push('./pollresults')
-              console.log('value', result)
-            })
-          .catch((e) => {
-              console.log(e.message);
-              alert("Submit error. Couldn't submit the answer");
-          });
+      }
+  }
   }
 })
 
@@ -94,31 +118,30 @@ const handleOptionSelected =(value)=> {
   optionSelected = value
 }
 
+const handleGetFiles = (imageFiles) => {
+  files = imageFiles;
+}
 </script>
+
 <template>
   <div class="container">
     <SingleCorrectVue
+    :question-order="questionOrder"
       style="margin: auto"
-      :questionOrder="questionOrder"
       :options="options"
       :question="question"
       :selected-toggle="selectedToggle"
       :contest-name="contestName"
       :contest-type="contestType"
       @get-option-selected="handleOptionSelected"
-
     ></SingleCorrectVue>
-    <div style="margin: 5px"></div>
-    <!-- <div>
-        <span v-for="button in buttons" style="margin: 15px">
-            <input
-                type="button"
-                :value="button"
-                style="margin-top: 8px; padding: 8px"
-                @click="handlebutton(button)"
-            />
-        </span>
-    </div> -->
+  
+    <br>
+    <div style="margin-bottom: 50px;">
+    <ImagePreviewVue @get-files="handleGetFiles">
+      
+    </ImagePreviewVue>
+    </div>
   </div>
 </template>
 
@@ -128,7 +151,8 @@ const handleOptionSelected =(value)=> {
   flex-direction: column;
   /* justify-content: center;  */
   align-items: center;
-  /* width: 100%; */
   /* height: 100vh; */
 }
 </style>
+
+

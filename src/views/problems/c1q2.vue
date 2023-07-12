@@ -19,7 +19,7 @@
 
     var selectedFile = null;
     var userInputText = ref('')
-    const receivedIsLoggedIn = computed(() => store.state.isRegistered)
+    const receivedIsLoggedIn = computed(() => store.state.isLoggedIn)
     const userId = computed(() => store.state.userId)
     const userName = computed(() => store.state.userName)
     const userEmail = computed(() => store.state.userEmail)

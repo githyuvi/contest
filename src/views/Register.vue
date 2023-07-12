@@ -4,6 +4,7 @@ import { ref as firebaseRef, getDatabase, set } from '@firebase/database';
 import { useStore } from 'vuex'
 import { useRouter } from "vue-router";
 
+var test = ref('hello')
 const db = getDatabase();
 const store = useStore();
 const router = useRouter();
@@ -17,23 +18,25 @@ const userName = computed(() => store.state.userName)
 const userEmail = computed(() => store.state.userEmail)
 
 const submitRegistrationForm = () => {
-    set(firebaseRef(db, 'users/' + '014b5wyVg6WeC6R7STf2lrWEiyR2'), {
-        registered: true,
-        username: userName.value,
-        studentName: name.value,
-        email: userEmail.value,
-        teamName: teamname.value,
-        instituteName: institutename.value
+    set(firebaseRef(db, 'users/' + userId.value), {
+      registered: true,
+      username: userName.value,
+      studentName: name.value,
+      email: userEmail.value,
+      teamName: teamname.value,
+      instituteName: institutename.value
   }).then(() => {
     store.commit('setIsRegistered', true)
-    router.push('/q1')
-    
+    router.push('/')
   })
   .catch((error) => {
-            console.log(error);
-        });
+    console.log(error);
+  });
 }
 
+const displayTest = () => {
+    console.log(test)
+}
 </script>
 
 <template>
@@ -61,6 +64,10 @@ const submitRegistrationForm = () => {
             </form>
         </div>
     </div>
+
+    <input type="text" v-model="test">
+    {{ test }}
+    <button @click="displayTest">display</button>
 
 </template>
 

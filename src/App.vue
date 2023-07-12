@@ -1,4 +1,3 @@
-
 <script setup>
 
 import { onMounted, ref, computed } from 'vue';
@@ -19,18 +18,18 @@ let auth;
 onMounted(() => {
 
   let navToggle = document.querySelector(".nav__toggle");
-let navWrapper = document.querySelector(".nav__wrapper");
-navToggle.addEventListener("click", function () {
-  if (navWrapper.classList.contains("active")) {
-    this.setAttribute("aria-expanded", "false");
-    this.setAttribute("aria-label", "menu");
-    navWrapper.classList.remove("active");
-  } else {
-    navWrapper.classList.add("active");
-    this.setAttribute("aria-label", "close menu");
-    this.setAttribute("aria-expanded", "true");
-  }
-});
+  let navWrapper = document.querySelector(".nav__wrapper");
+  navToggle.addEventListener("click", function () {
+    if (navWrapper.classList.contains("active")) {
+      this.setAttribute("aria-expanded", "false");
+      this.setAttribute("aria-label", "menu");
+      navWrapper.classList.remove("active");
+    } else {
+      navWrapper.classList.add("active");
+      this.setAttribute("aria-label", "close menu");
+      this.setAttribute("aria-expanded", "true");
+    }
+  });
 
 navWrapper.addEventListener("click", function() {
   if (navWrapper.classList.contains("active")) {
@@ -45,7 +44,6 @@ navWrapper.addEventListener("click", function() {
 })
 
   console.log('onmounted called')
-  // console.log('userImageUrl' + userImageUrl)
   auth = getAuth();
   onAuthStateChanged(auth,(user)=> {
     if (user) {
@@ -62,7 +60,7 @@ navWrapper.addEventListener("click", function() {
 const handleSignOut = () => {
   signOut(auth).then(() => {
     store.commit('setIsRegistered', false)
-    store.commit('setUserId','df')
+    // store.commit('setUserId','df')
     router.push("/").then((result) => window.location.reload());
   });
 };
@@ -86,12 +84,10 @@ const hangelIsRegistered = (user) => {
   console.error(error);
 });
 }
-  
 
 </script>
 
 <template>
-
 <header class="site-header">
       <div class="wrapper site-header__wrapper">
         <div class="site-header__start">
@@ -105,30 +101,26 @@ const hangelIsRegistered = (user) => {
             </button>
             <ul class="nav__wrapper">
               <li class="nav__item"><router-link to="/"> Home </router-link></li>
-              <li class="nav__item"><router-link to="/imagepreview"> Image Preview </router-link></li>
-              <li class="nav__item"><router-link to="/imagepreview2"> Image Preview 2 </router-link></li>
-              <li class="nav__item"><router-link to="/imagepreview3"> Image Preview 3 </router-link></li>
-              <li class="nav__item"><router-link to="/imagepreview4"> Image Preview 4 </router-link></li>
-              <li class="nav__item"><router-link to="/poll"> Poll </router-link></li>
-              <li class="nav__item"><router-link to="/pollresults"> Poll Results </router-link></li>
-              <li class="nav__item"><router-link to="/q7"> q7 </router-link></li>
+              <!-- <li class="nav__item"><router-link to="/contest1"> Contest 1 </router-link></li>
+              <li class="nav__item"><router-link to="/contest2"> Contest 2 </router-link></li>
+              <li class="nav__item"><router-link to="/contest3"> Contest 3 </router-link></li> -->
+              <li class="nav__item"><router-link to="/live1"> Live 1 </router-link></li>
               <!-- <li class="nav__item"><router-link to="/q4"> Q4 </router-link></li> -->
             </ul>
           </nav>
         </div>
         <div class="site-header__end">
+          <button v-if="!isLoggedIn"><router-link to="/login"> Login </router-link></button>
           <button @click="handleSignOut" v-if="isLoggedIn"> Sign Out</button>
           <img  :src="userImageUrl" alt="userphoto" v-if="isLoggedIn" style="height: 32px; width: 32px; margin-left: 10px;">
         </div>
       </div>
 </header>
 
-    <router-view />
+  <router-view />
 
     
 </template>
-
-
 
 <style scoped>
 
@@ -184,7 +176,15 @@ nav a:first-of-type {
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}table{border-collapse:collapse;border-spacing:0}
 
-
+.sign-out-button {
+  background-color: #def7ff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
 
 .wrapper {
   max-width: 1140px;

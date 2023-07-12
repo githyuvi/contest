@@ -2,6 +2,7 @@
 import MultipleCorrectVue from "./MultipleCorrect.vue";
 import { useStore } from "vuex";
 import { computed, onMounted, reactive, ref } from "vue";
+import ImagePreviewVue from "./ImagePreview.vue";
 import { getStorage , ref as firebaseStorageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 import {
   getDatabase,
@@ -32,9 +33,9 @@ const isLoggedIn = computed(() => store.state.isLoggedIn)
 var options = reactive([])
 var selectedToggle = reactive([])
 var optionsSelected = reactive([])
+var files = []
 
 onMounted(async() => {
-  getToggles();
   initializeOptions(props.answers);
   console.log('userid', userId.value)
   await get(child(dbRef,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  `answers/` + props.questionLocation + "/options"))
@@ -56,17 +57,6 @@ onMounted(async() => {
     console.log('optionsSelected', optionsSelected)
     console.log('options', options)
 })
-
-const getToggles = () => {
-  const length = props.answers.length;
-  const toggles = reactive([]);
-  for (var i = 0; i < length; i++) {
-    toggles.push("");
-  }
-  return toggles;
-
-}
-
 const initializeOptions = (answers) => {
   // const options = reactive([]);
   for (let i = 0; i < answers.length; i++) {
@@ -94,6 +84,26 @@ defineExpose({
       console.log(e.message);
       alert("Submit error. Couldn't submit the answer");
   });
+
+  if(files.length > 0){
+    await set( firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/images/"),null)
+    const storage = getStorage();
+    var storageRef
+    for(let i = 0;i<files.length;i++){
+      storageRef = firebaseStorageRef(storage, "livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/" + files[i].name);
+      await uploadBytes(storageRef, files[i]).then(async (snapshot) => {
+          console.log('Uploaded a blob or file!');
+      })
+      .catch((error) => {
+          console.log(error.message);
+          alert("Submit error. Couldn't submit the answer");
+      });
+      await set(
+          firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/images/" + i),
+          "livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/" + files[i].name
+        )
+    }
+  }
   }
 })
 
@@ -101,37 +111,33 @@ const handleOptionSelected =(value)=> {
   console.log('value', value)
   optionsSelected = value
 }
-const handleGetFiles = (files) => {
-  files = files;
+const handleGetFiles = (imageFiles) => {
+  files = imageFiles;
 }
 
 
 </script>
+
 <template>
   <div class="container">
     <MultipleCorrectVue
-    :questionOrder="questionOrder"
+    :question-order="questionOrder"
       style="margin: auto"
       :options="options"
       :question="question"
       :selected-toggle="selectedToggle"
       @get-options-selected="handleOptionSelected"
       :options-selected="optionsSelected"
+      v-bind:question-order="questionOrder"
       :contest-name="contestName"
       :contest-type="contestType"
     ></MultipleCorrectVue>
-    <div style="margin: 5px"></div>
-    <!-- <div>
-      <span v-for="button in buttons" style="margin: 15px">
-        <input
-          type="button"
-          :value="button"
-          style="margin-top: 8px; padding: 8px"
-          @click="handlebutton(button)"
-          
-        />
-      </span>
-    </div> -->
+    <br>
+  <div style="margin-bottom: 50px;">
+    <ImagePreviewVue @get-files="handleGetFiles">
+      
+    </ImagePreviewVue>
+  </div>
   </div>
 </template>
 

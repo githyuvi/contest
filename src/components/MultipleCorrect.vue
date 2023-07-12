@@ -1,41 +1,79 @@
-<script>
-import { ref } from 'vue'
-import { reactive } from 'vue'
-/* props
-* question: String, That string can consist of html tags, so the string will be rendered as html
-* options: Array of objects, each object has an id and a text property
-* selectedToggle: Array of strings, each string is either 'selected' or ''
-* optionsSelected: Array of strings, each string is an id of an option
-*/
-    export default {
-        props: ['question','options','selectedToggle', 'optionsSelected'],
-        data() {
-            return {
-                
-            }
-        },
-        methods: {
-            sendData(index) {
-                if(this.selectedToggle[index] == 'selected'){
-                    this.selectedToggle[index] = ''
-                    this.optionsSelected.splice(this.optionsSelected.indexOf(this.options[index].id), 1)
-                }
-                else {
-                    this.selectedToggle[index] = 'selected'
-                    this.optionsSelected.push(this.options[index].id)
-                }                
-                console.log('emitoptionsselected',this.optionsSelected)
-                this.$emit('get-options-selected' , this.optionsSelected);
-            },
+<script setup>
+import { onMounted, ref } from 'vue'
+import { getStorage, ref as firebaseStorageRef, getDownloadURL} from "firebase/storage";
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 
+const store = useStore()
+const userId = computed(() => store.state.userId)
+const storage = getStorage();
+
+const props = defineProps({
+    questionOrder: String,
+    question: Array,
+    options: Array,
+    selectedToggle: Array,
+    optionsSelected: Array,
+    contestType: String,
+    contestName: String,
+})
+
+const questionHtml = ref('')
+const  downloaded = ref(false)
+
+const emits = defineEmits(['get-options-selected'])
+
+const sendData = (index) => {
+  if(props.selectedToggle[index] == 'selected'){
+      props.selectedToggle[index] = ''
+      props.optionsSelected.splice(props.optionsSelected.indexOf(props.options[index].id), 1)
+  }
+  else {
+      props.selectedToggle[index] = 'selected'
+      props.optionsSelected.push(props.options[index].id)
+  }                
+  console.log('emitoptionsselected',props.optionsSelected)
+  emits('get-options-selected' , props.optionsSelected);
+}
+onMounted(async () => {
+  questionHtml.value += '<span style="align-self: flex-start;">'+ props.questionOrder + '. </span>'
+  var baseReference
+  if(props.contestType == 'democontest')
+  baseReference = 'democontest/' + userId.value + '/' + props.contestName + '/'
+  if(props.contestType == 'livecontest')
+  baseReference = 'livecontest/' + props.contestName + '/'
+      const questionArray = Array.from(Object.values(props.question))[0]
+      
+      for(let i = 0; i < questionArray.length; i++){
+        var objectkey = Object.keys(questionArray[i])[0]
+        
+        if(objectkey == 'text')
+        questionHtml.value += '<div>' + questionArray[i][objectkey] + '</div>'
+        else if(objectkey == 'image') {
+          var imageUrl
+          var pathReference
+          pathReference = firebaseStorageRef(storage, baseReference + questionArray[i][objectkey]); 
+          await getDownloadURL(pathReference)
+          .then((url) => {
+            imageUrl = url
+          })
+          .catch((error) => {
+            // Handle any errors
+          });
+          questionHtml.value += '<img style="max-width:98%;max-height:80vh" src="' + imageUrl + '">'
         }
-    }
+      }
+      downloaded.value = true
+})
+
+   
+
 </script>
 
 <template v-cloak>
-    <div class="wrapper" style="text-align: center;">
-    <!-- <header>{{ question }}</header> -->
-    <div v-html="question"></div>
+    <div class="wrapper" style="text-align: center;" v-if="downloaded">
+     
+    <div v-html="questionHtml"></div>
     <div class="poll-area" >
         <div v-for='option in options' :key='option.id'>
             <input type="radio" name="poll" :id="'opt-' + option.id" :value="option.id" >
@@ -79,9 +117,10 @@ body{
 .wrapper{
   /* background: #fff; */
   border-radius: 15px;
-  padding: 25px;
-  max-width: 380px;
+  padding: 2px;
+  /* max-width: fit-content; */
   width: 100%;
+  max-width: 900px;
   box-shadow: 0px 5px 10px rgba(0,0,0,0.1);
 }
 .wrapper header{

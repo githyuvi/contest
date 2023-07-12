@@ -1,15 +1,7 @@
-
-import { createApp, ref } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import VDContainer from 'vue-flexable-dnd'
-
-
-
-// import VueScrollTo from 'vue-scrollto';
-
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 
  
@@ -28,7 +20,7 @@ console.log("main running")
 const firebaseConfig = {
     
     apiKey: "AIzaSyBS5C8p33p3bQHVE3r2IlM_XY5hJukuBZs",
-    authDomain: "fir-algomuse.firebaseapp.com",
+    authDomain: "poll.cmientranceexam.in",
     databaseURL: "https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "fir-algomuse",
     storageBucket: "fir-algomuse.appspot.com",
@@ -38,15 +30,11 @@ const firebaseConfig = {
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
-console.log('firebase')
-// const analytics = getAnalytics(app);
 
 const app = createApp(App)
 
 app.use(router)
 app.use(store)
-app.use(VDContainer)
-// app.use(mavonEditor)
 
 
 console.log('app.use router store')
