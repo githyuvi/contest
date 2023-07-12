@@ -66,6 +66,23 @@ routes[24].meta.requiresRegistration = true
 // routes[11].component = () => import("../views/q6.vue")
 // routes[12].component = () => import("../views/q7.vue")
 
+routes[0].component = () => import("../views/HomeView.vue")
+routes[1].component = () => import("../views/Register.vue")
+routes[2].component = () => import("../views/Login.vue")
+routes[3].component = () => import("../views/q1.vue")
+routes[4].component = () => import("../views/q2.vue")
+routes[5].component = () => import("../views/q3.vue")
+routes[6].component = () => import("../views/Poll.vue")
+routes[7].component = () => import("../views/PollResults.vue")
+routes[8].component = () => import("../views/q4.vue")
+routes[9].component = () => import("../views/q5tiptap.vue")
+routes[10].component = () => import("../views/Chk.vue")
+routes[11].component = () => import("../views/q6.vue")
+routes[12].component = () => import("../views/q7.vue")
+routes[21].component = () => import("../views/Admin.vue")
+routes[22].component = () => import("../views/DemoContests.vue")
+routes[23].component = () => import("../views/LiveContestSubmit.vue")
+routes[24].component = () => import("../views/LiveContest1.vue")
 
 const router = createRouter( {
 
