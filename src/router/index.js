@@ -41,7 +41,7 @@ const routes = []
 routesData.forEach((routeData) => {
     const obj = {}
     obj.path = routeData[0]
-    obj.component = () => import("../views/" + routeData[1] + ".vue")
+    // obj.component = () => import("../views/" + routeData[1] + ".vue")
     obj.meta = {requiresAuth: true}
     routes.push(obj)    
 });
