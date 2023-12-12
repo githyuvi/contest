@@ -1,17 +1,10 @@
 import { createApp } from 'vue'
+import VueMathjax from 'vue-mathjax-next';
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import { initializeApp } from "firebase/app";
 
- 
-// require styles
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-
-console.log("main running")
 // TODO: Add SDKs for Firebase products that you want to use
 // [https://firebase.google.com/docs/web/setup#available-libraries](https://firebase.google.com/docs/web/setup#available-libraries)
 
@@ -26,6 +19,7 @@ const firebaseConfig = {
     storageBucket: "fir-algomuse.appspot.com",
     messagingSenderId: "377023861327",
     appId: "1:377023861327:web:2f7488341d1a81ef8d503a"
+    
 };
 
 // Initialize Firebase
@@ -35,7 +29,7 @@ const app = createApp(App)
 
 app.use(router)
 app.use(store)
-
+app.use(VueMathjax)
 
 console.log('app.use router store')
 app.mount('#app')

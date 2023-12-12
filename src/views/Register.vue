@@ -4,7 +4,6 @@ import { ref as firebaseRef, getDatabase, set } from '@firebase/database';
 import { useStore } from 'vuex'
 import { useRouter } from "vue-router";
 
-var test = ref('hello')
 const db = getDatabase();
 const store = useStore();
 const router = useRouter();
@@ -34,9 +33,6 @@ const submitRegistrationForm = () => {
   });
 }
 
-const displayTest = () => {
-    console.log(test)
-}
 </script>
 
 <template>

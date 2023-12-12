@@ -36,7 +36,6 @@ const sendData = (index) => {
   emits('get-options-selected' , props.optionsSelected);
 }
 onMounted(async () => {
-  questionHtml.value += '<span style="align-self: flex-start;">'+ props.questionOrder + '. </span>'
   var baseReference
   if(props.contestType == 'democontest')
   baseReference = 'democontest/' + userId.value + '/' + props.contestName + '/'
@@ -72,7 +71,7 @@ onMounted(async () => {
 
 <template v-cloak>
     <div class="wrapper" style="text-align: center;" v-if="downloaded">
-     
+      <h2> Question {{ questionOrder }}</h2>
     <div v-html="questionHtml"></div>
     <div class="poll-area" >
         <div v-for='option in options' :key='option.id'>

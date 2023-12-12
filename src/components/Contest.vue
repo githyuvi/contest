@@ -3,6 +3,7 @@ import MultipleCorrectFull from './MultipleCorrectFull.vue';
 import SingleCorrectFull from './SingleCorrectFull.vue';
 import MultipleCorrectDescriptionFull from './MultipleCorrectDescriptionFull.vue';
 import SingleCorrectDescriptionFull from './SingleCorrectDescriptionFull.vue';
+import Descriptive from './Descriptive.vue';
 import { ref, reactive } from 'vue';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import Loading from 'vue-loading-overlay';
@@ -23,11 +24,13 @@ const mcComponent = ref(null)
 const scComponent = ref(null)
 const mcdComponent = ref(null)
 const scdComponent = ref(null)
+const desComponent = ref(null)
 
 const mckey = ref(0)
 const sckey = ref(0)
 const mcdkey = ref(0)
 const scdkey = ref(0)
+const deskey = ref(0)
 
 const isLoading = ref(false)
 const fullPage = ref(true)
@@ -35,6 +38,7 @@ const fullPage = ref(true)
 const next = () => {
     
     index++
+    console.log(index)
     if(index<= -1){
         index = questionObjects.length-1
     }
@@ -42,20 +46,30 @@ const next = () => {
         index = 0
     }
     questionType.value = questionObjects[index].questionType
+    if(questionType.value != 'des'){
+    questionType.value = questionObjects[index].questionType
     questionParts.value = questionObjects[index].questionParts
     optionsText.value = questionObjects[index].optionsText
     correctAnswer.value = questionObjects[index].correctAnswer
     questionOrder.value = questionObjects[index].questionOrder
     questionMarks.value = questionObjects[index].questionMarks
-
+    }
+    else {
+        questionType.value = questionObjects[index].questionType
+        questionParts.value = questionObjects[index].questionParts
+        questionOrder.value = questionObjects[index].questionOrder
+        questionMarks.value = questionObjects[index].questionMarks
+    }
     if(questionType.value == 'mc')
     mckey.value++
     if(questionType.value == 'sc')
     sckey.value++
     if(questionType.value == 'mcd')
     mcdkey.value++
-    if(questionType.value == 'scd')
+    if(questionType.value == 'scd') 
     scdkey.value++
+    if(questionType.value == 'des')
+    deskey.value++
 
 
 }
@@ -78,7 +92,11 @@ const save = async() => {
     } else if(questionType.value == 'scd') {
         await scdComponent.value.save()
 
+    } else if(questionType.value == 'des'){
+        await desComponent.value.save()
+    
     }
+    
     next()
     isLoading.value = false
 }
@@ -91,6 +109,7 @@ isLoading.value = true
 getContestQuestions({contestName:props.contestName, contestType:"livecontest"}).then((result) => {
     
     questionObjects = result.data
+    console.log(questionObjects)
     next()
     downloaded.value = true
     isLoading.value = false
@@ -100,10 +119,11 @@ getContestQuestions({contestName:props.contestName, contestType:"livecontest"}).
 
 <template v-cloak>
 <div v-if="downloaded"> 
-    <div><MultipleCorrectFull :key="mckey" ref="mcComponent" v-if="questionType == 'mc'" :question-location="'q'+questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></MultipleCorrectFull></div>
-    <div><SingleCorrectFull :key="sckey" ref="scComponent" v-if="questionType == 'sc'" :question-location="'q' + questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></SingleCorrectFull></div>
+    <div><MultipleCorrectFull :key="mckey" ref="mcComponent" v-if="questionType == 'mc'" :question-location="'q'+questionOrder" :question-order="questionOrder" :question="questionParts" :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></MultipleCorrectFull></div>
+    <div><SingleCorrectFull :key="sckey" ref="scComponent" v-if="questionType == 'sc'" :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts" :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></SingleCorrectFull></div>
     <div><MultipleCorrectDescriptionFull :key="mcdkey" ref="mcdComponent" v-if="questionType == 'mcd'" :question-location="'q'+questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></MultipleCorrectDescriptionFull></div>
     <div><SingleCorrectDescriptionFull :key="mcdkey" ref="scdComponent" v-if="questionType == 'scd'" :question-location="'q' + questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></SingleCorrectDescriptionFull></div>
+    <div><Descriptive :key="deskey" ref="desComponent" v-if="questionType == 'des'" :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts" contest-type="livecontest" :contest-name="contestName"></Descriptive></div>
 <div class="button-container">
     <button @click="save">Save and Next</button>
     <button @click="next">Next</button>
