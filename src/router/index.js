@@ -83,7 +83,17 @@ const routes = [
             requiresAuth: true,
             requiresRegistration: true
         }
+    },
+    {
+        path: '/mddemo2scores',
+        name: 'MdDemo1Scores',
+        component: () => import("../views/MdDemo2Scores.vue"),
+        meta: {
+            requiresAuth: true,
+            requiresRegistration: true
+        }
     }
+
 
 ]
 

@@ -7,6 +7,7 @@ import Descriptive from './Descriptive.vue';
 import { ref, reactive } from 'vue';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import Loading from 'vue-loading-overlay';
+import router from '../router';
 const functions = getFunctions()
 const getContestQuestions = httpsCallable(functions, 'getContestQuestions',)
 
@@ -35,79 +36,96 @@ const deskey = ref(0)
 const isLoading = ref(false)
 const fullPage = ref(true)
 
+function showConfirmationModal() {
+  document.getElementById('confirmModal').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+  document.getElementById('confirmModal').style.display = 'none';
+}
+
+// Function to submit the test
+function submitTest() {
+  // Perform the submission logic here
+  // For demonstration, let's show an alert
+  alert('Test submitted successfully!');
+  closeModal(); // Close the modal after submission
+  router.push('/mddemo2scores')
+}
 const next = () => {
-    
+
     index++
     console.log(index)
-    if(index<= -1){
-        index = questionObjects.length-1
+    if (index <= -1) {
+        index = questionObjects.length - 1
     }
-    if(index >= questionObjects.length) {
+    if (index >= questionObjects.length) {
         index = 0
     }
     questionType.value = questionObjects[index].questionType
-    if(questionType.value != 'des'){
-    questionType.value = questionObjects[index].questionType
-    questionParts.value = questionObjects[index].questionParts
-    optionsText.value = questionObjects[index].optionsText
-    correctAnswer.value = questionObjects[index].correctAnswer
-    questionOrder.value = questionObjects[index].questionOrder
-    questionMarks.value = questionObjects[index].questionMarks
+    if (questionType.value != 'des') {
+        questionType.value = questionObjects[index].questionType
+        questionParts.value = questionObjects[index].questionParts
+        optionsText.value = questionObjects[index].optionsText
+        correctAnswer.value = questionObjects[index].correctAnswer
+        questionOrder.value = index + 1
+        questionMarks.value = questionObjects[index].questionMarks
     }
     else {
         questionType.value = questionObjects[index].questionType
         questionParts.value = questionObjects[index].questionParts
-        questionOrder.value = questionObjects[index].questionOrder
+        questionOrder.value = index + 1
         questionMarks.value = questionObjects[index].questionMarks
     }
-    if(questionType.value == 'mc')
-    mckey.value++
-    if(questionType.value == 'sc')
-    sckey.value++
-    if(questionType.value == 'mcd')
-    mcdkey.value++
-    if(questionType.value == 'scd') 
-    scdkey.value++
-    if(questionType.value == 'des')
-    deskey.value++
+    if (questionType.value == 'mc')
+        mckey.value++
+    if (questionType.value == 'sc')
+        sckey.value++
+    if (questionType.value == 'mcd')
+        mcdkey.value++
+    if (questionType.value == 'scd')
+        scdkey.value++
+    if (questionType.value == 'des')
+        deskey.value++
 
 
 }
 const props = defineProps({
     contestName: String
 })
-const save = async() => {
+const save = async () => {
     isLoading.value = true
-    if(questionType.value == 'mc') {
+    if (questionType.value == 'mc') {
         await mcComponent.value.save()
-        
-    } else if(questionType.value == 'sc') {
+
+    } else if (questionType.value == 'sc') {
         console.log('scComponent', scComponent.value)
         await scComponent.value.save()
 
-    } else if(questionType.value == 'mcd') {
+    } else if (questionType.value == 'mcd') {
         console.log(mcdComponent)
         await mcdComponent.value.save()
 
-    } else if(questionType.value == 'scd') {
+    } else if (questionType.value == 'scd') {
         await scdComponent.value.save()
 
-    } else if(questionType.value == 'des'){
+    } else if (questionType.value == 'des') {
         await desComponent.value.save()
-    
+
     }
-    
+
     next()
     isLoading.value = false
 }
 
 const previous = () => {
-    index-=2
+    index -= 2
     next()
 }
 isLoading.value = true
-getContestQuestions({contestName:props.contestName, contestType:"livecontest"}).then((result) => {
-    
+getContestQuestions({ contestName: props.contestName, contestType: "livecontest" }).then((result) => {
+
     questionObjects = result.data
     console.log(questionObjects)
     next()
@@ -118,24 +136,53 @@ getContestQuestions({contestName:props.contestName, contestType:"livecontest"}).
 </script>
 
 <template v-cloak>
-<div v-if="downloaded"> 
-    <div><MultipleCorrectFull :key="mckey" ref="mcComponent" v-if="questionType == 'mc'" :question-location="'q'+questionOrder" :question-order="questionOrder" :question="questionParts" :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></MultipleCorrectFull></div>
-    <div><SingleCorrectFull :key="sckey" ref="scComponent" v-if="questionType == 'sc'" :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts" :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></SingleCorrectFull></div>
-    <div><MultipleCorrectDescriptionFull :key="mcdkey" ref="mcdComponent" v-if="questionType == 'mcd'" :question-location="'q'+questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></MultipleCorrectDescriptionFull></div>
-    <div><SingleCorrectDescriptionFull :key="mcdkey" ref="scdComponent" v-if="questionType == 'scd'" :question-location="'q' + questionOrder" :questionOrder="questionOrder" :question="questionParts" :answers="optionsText" contestType="livecontest" :contestName="contestName"></SingleCorrectDescriptionFull></div>
-    <div><Descriptive :key="deskey" ref="desComponent" v-if="questionType == 'des'" :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts" contest-type="livecontest" :contest-name="contestName"></Descriptive></div>
-<div class="button-container">
-    <button @click="save">Save and Next</button>
-    <button @click="next">Next</button>
-    <button @click="previous">Previous</button>
-</div>
-</div>
-<div class="vld-parent">
-  <Loading :active.sync="isLoading" 
-  :can-cancel="true" 
-  :is-full-page="fullPage"></Loading>
+    <div v-if="downloaded">
+        <button class="submit-test-button" @click="showConfirmationModal">Submit Test</button>
+        <div>
+            <MultipleCorrectFull :key="mckey" ref="mcComponent" v-if="questionType == 'mc'"
+                :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts"
+                :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></MultipleCorrectFull>
+        </div>
+        <div>
+            <SingleCorrectFull :key="sckey" ref="scComponent" v-if="questionType == 'sc'"
+                :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts"
+                :answers="optionsText" contest-type="livecontest" :contest-name="contestName"></SingleCorrectFull>
+        </div>
+        <div>
+            <MultipleCorrectDescriptionFull :key="mcdkey" ref="mcdComponent" v-if="questionType == 'mcd'"
+                :question-location="'q' + questionOrder" :questionOrder="questionOrder" :question="questionParts"
+                :answers="optionsText" contestType="livecontest" :contestName="contestName">
+            </MultipleCorrectDescriptionFull>
+        </div>
+        <div>
+            <SingleCorrectDescriptionFull :key="mcdkey" ref="scdComponent" v-if="questionType == 'scd'"
+                :question-location="'q' + questionOrder" :questionOrder="questionOrder" :question="questionParts"
+                :answers="optionsText" contestType="livecontest" :contestName="contestName"></SingleCorrectDescriptionFull>
+        </div>
+        <div>
+            <Descriptive :key="deskey" ref="desComponent" v-if="questionType == 'des'"
+                :question-location="'q' + questionOrder" :question-order="questionOrder" :question="questionParts"
+                contest-type="livecontest" :contest-name="contestName"></Descriptive>
+        </div>
+        <div class="button-container">
+            <button @click="save">Save and Next</button>
+            <button @click="next">Next</button>
+            <button @click="previous">Previous</button>
+        </div>
 
-</div>
+        <div class="modal" id="confirmModal">
+            <div class="modal-content">
+                <p>Are you sure you want to submit the test?</p>
+                <button @click="submitTest">Yes</button>
+                <button @click="closeModal">No</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="vld-parent">
+        <Loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></Loading>
+
+    </div>
 </template>
 
 
@@ -143,19 +190,65 @@ getContestQuestions({contestName:props.contestName, contestType:"livecontest"}).
 @import 'node_modules/vue-loading-overlay/dist/css/index.css';
 
 [v-cloak] {
-  display: none;
+    display: none;
 }
 
 .button-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      text-align: center;
-      padding: 10px;
-    }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 10px;
+}
 
 .button-container button {
     margin: 0 5px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
+
+.submit-test-button {
+    position: fixed;
+    bottom: 20px;
+    /* Adjust the distance from the top */
+    right: 20px;
+    /* Adjust the distance from the right */
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    /* Ensure it's above other elements */
+}
+
+/* Style for the modal dialog */
+.modal {
+  display: none; /* Hide the modal by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+
 </style>

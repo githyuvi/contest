@@ -23,6 +23,7 @@ const formula3 = ref('Suppose $P$ and $Q$ are the centres of two disjoint circle
                 </div>
                 <div class="contest">
                     <div class="title"><router-link to="/mddemo2"> md demo 2</router-link></div>
+                    <div class="title"><router-link to="/mddemo2scores"> Score</router-link></div>
                     <div class="description">Description of demo 2</div>
                     <div class="date">Started: May 10, 2023</div>
                 </div>
