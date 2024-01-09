@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-// import parent from './parent.vue'
+import parent from './parent.vue'
 import { ref } from 'vue'
 const message = ref('hello')
 const message2 = ref('hello2')

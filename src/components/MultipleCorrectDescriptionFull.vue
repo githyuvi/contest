@@ -20,7 +20,7 @@ const props = defineProps({
     question: Array,
     answers: Array,
     questionLocation: String,
-    questionOrder: String,
+    questionOrder: Number,
     contestType: String,
     contestName: String,
 })
@@ -37,7 +37,6 @@ var files = []
 
 onMounted(async() => {
   initializeOptions(props.answers);
-  console.log('userid', userId.value)
   await get(child(dbRef,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  `answers/` + props.questionLocation + "/options"))
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -53,9 +52,6 @@ onMounted(async() => {
       console.log(error);
       alert("couldn't fetch results");
     });
-
-    console.log('optionsSelected', optionsSelected)
-    console.log('options', options)
 })
 const initializeOptions = (answers) => {
   // const options = reactive([]);
@@ -77,8 +73,6 @@ defineExpose({
     optionsSelected
   )
   .then((value) => {
-      // router.push('./pollresults')
-      console.log('value', value)
     })
   .catch((e) => {
       console.log(e.message);
@@ -92,7 +86,6 @@ defineExpose({
     for(let i = 0;i<files.length;i++){
       storageRef = firebaseStorageRef(storage, "livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/" + files[i].name);
       await uploadBytes(storageRef, files[i]).then(async (snapshot) => {
-          console.log('Uploaded a blob or file!');
       })
       .catch((error) => {
           console.log(error.message);
@@ -104,11 +97,15 @@ defineExpose({
         )
     }
   }
+  },
+  async clear(){
+    optionsSelected = []
+    selectedToggle = []
+    files = []
   }
 })
 
 const handleOptionSelected =(value)=> {
-  console.log('value', value)
   optionsSelected = value
 }
 const handleGetFiles = (imageFiles) => {
@@ -119,7 +116,7 @@ const handleGetFiles = (imageFiles) => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <MultipleCorrectVue
     :question-order="questionOrder"
       style="margin: auto"
@@ -132,21 +129,15 @@ const handleGetFiles = (imageFiles) => {
       :contest-name="contestName"
       :contest-type="contestType"
     ></MultipleCorrectVue>
-    <br>
-  <div style="margin-bottom: 50px;">
-    <ImagePreviewVue @get-files="handleGetFiles">
+  </div>
+  
+  <div>
+    <ImagePreviewVue :question-order="questionOrder" :contest-name="contestName" @get-files="handleGetFiles">
       
     </ImagePreviewVue>
   </div>
-  </div>
+  
 </template>
 
 <style>
-/* .container { */
-  /* display: flex; */
-  /* flex-direction: column; */
-  /* justify-content: center;  */
-  /* align-items: center; */
-  /* height: 100vh; */
-/* } */
 </style>

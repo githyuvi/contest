@@ -64,4 +64,21 @@
     <correctAnswer>3</correctAnswer>
     <correctAnswer>4</correctAnswer>
 </question>
+<question>
+    <type>des</type><!-- descriptive-->
+    <order>5</order>
+    <marks>1</marks>
+    <questionContent>
+        <text>For any \(k \in \mathbb{Z}^{+}\), prove that:<br>
+        \[
+        2(\sqrt{k+1}-\sqrt{k})<\frac{1}{\sqrt{k}}<2(\sqrt{k}-\sqrt{k-1})
+        \]
+        Also compute integral part of<br>
+        \[
+        \frac{1}{\sqrt{2}}+\frac{1}{\sqrt{3}}+\ldots+\frac{1}{\sqrt{10000}} 
+        \]
+<br></text>
+    </questionContent>
+    
+</question>
 </library>

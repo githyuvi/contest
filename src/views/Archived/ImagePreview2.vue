@@ -80,7 +80,7 @@
     methods: {
       handleFileUpload() {
         const files = this.$refs.fileInput.files;
-        console.log('files', files)
+        // console.log('files', files)
         this.processFiles(files);
       },
       processFiles(files) {
@@ -97,7 +97,7 @@
             });
           };
           reader.readAsDataURL(file);
-          console.log('file', file)
+          // console.log('file', file)
         }
       },
       resizeImage(dataUrl, maxWidth, maxHeight, callback) {
@@ -146,7 +146,7 @@
       },
       submitFiles() {
         // Logic to submit the files to the server
-        console.log(this.files)
+        // console.log(this.files)
       },
     }
   };

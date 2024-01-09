@@ -12,6 +12,10 @@ import {
   
 } from "firebase/database";
 
+import Loading from 'vue-loading-overlay';
+const isLoading = ref(false)
+const fullPage = ref(true)
+
 const store = useStore();
 const db = getDatabase();
 const dbRef = firebaseRef(db);
@@ -19,32 +23,49 @@ const props = defineProps({
     question: Array,
     answers: Array,
     questionLocation: String,
-    questionOrder: String,
+    questionOrder: Number,
     contestType: String,
     contestName: String,
+    submissionType: String
 })
 
 const userId = computed(() => store.state.userId)
-const userName = computed(() => store.state.userName)
-const userEmail = computed(() => store.state.userEmail)
-const isLoggedIn = computed(() => store.state.isLoggedIn)
+const questionData = computed(() => store.state.questionData)
 
 var options = reactive([])
-var selectedToggle = reactive([])
-var optionsSelected = reactive([])
+var selectedToggle = ref([])
+var optionsSelected = ref([])
 
 onMounted(async() => {
+  isLoading.value = true
   getToggles();
-  initializeOptions(props.answers);
-  console.log('userid', userId.value)
-  await get(child(dbRef,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  `answers/` + props.questionLocation + "/options"))
+  initializeOptions(props.answers)
+
+  let userAnswers = []
+
+  if(questionData.value[props.questionLocation] != null && questionData.value[props.questionLocation].userAnswers != null){
+    userAnswers.splice(0, userAnswers.length)
+    userAnswers.push(...questionData.value[props.questionLocation].userAnswers)
+    for (var i = 0; i < userAnswers.length; i++) {
+          const selectedIndex = parseInt(userAnswers[i]) - 1;
+          selectedToggle.value[selectedIndex] = "selected";
+          optionsSelected.value.push(userAnswers[i])
+        }
+    }
+    else {
+  await get(child(dbRef,props.submissionType + "contestsubmission/" + props.contestName + "/" + userId.value + "/" +  `answers/` + props.questionLocation + "/options"))
     .then((snapshot) => {
       if (snapshot.exists()) {
-        const userAnswers = snapshot.val();
+        userAnswers = snapshot.val();
+        if(questionData.value[props.questionLocation] == null)
+        questionData.value[props.questionLocation] = {}
+        questionData.value[props.questionLocation].userAnswers = userAnswers
+        store.commit('setQuestionData', questionData.value)
+        
         for (var i = 0; i < userAnswers.length; i++) {
           const selectedIndex = parseInt(userAnswers[i]) - 1;
-          selectedToggle[selectedIndex] = "selected";
-          optionsSelected.push(userAnswers[i])
+          selectedToggle.value[selectedIndex] = "selected";
+          optionsSelected.value.push(userAnswers[i])
         }
       }
     })
@@ -52,16 +73,15 @@ onMounted(async() => {
       console.log(error);
       alert("couldn't fetch results");
     });
-
-    console.log('optionsSelected', optionsSelected)
-    console.log('options', options)
+  }
+    isLoading.value = false
 })
 
 const getToggles = () => {
   const length = props.answers.length;
-  const toggles = reactive([]);
+  const toggles = ref([]);
   for (var i = 0; i < length; i++) {
-    toggles.push("");
+    toggles.value.push("");
   }
   return toggles;
 
@@ -82,33 +102,51 @@ const initializeOptions = (answers) => {
 
 defineExpose({
   async save() {
+    
     await set(
-    firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/options"),
-    optionsSelected
+    firebaseRef(db,props.submissionType + "contestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/options"),
+    optionsSelected.value
   )
   .then((value) => {
-      // router.push('./pollresults')
-      console.log('value', value)
+    if(questionData.value[props.questionLocation] == null)
+    questionData.value[props.questionLocation] = {}
+    questionData.value[props.questionLocation].userAnswers = optionsSelected.value
+    store.commit('setQuestionData', questionData.value)
+    if((optionsSelected.value == '' || optionsSelected.value == [] || optionsSelected.value == null) && questionData.value["answerstatus"][props.questionLocation] ){
+      questionData.value["answerstatus"][props.questionLocation] = false
+      store.commit('setTotalAnswered', computed(() => store.state.totalAnswered).value - 1)
+      store.commit('setTotalUnAnswered', computed(() => store.state.totalUnAnswered).value + 1)
+    }
+    else if(optionsSelected.value != '' && optionsSelected.value != [] && optionsSelected.value != null && !questionData.value["answerstatus"][props.questionLocation]){
+      questionData.value["answerstatus"][props.questionLocation] = true
+      store.commit('setTotalAnswered', computed(() => store.state.totalAnswered).value + 1)
+      store.commit('setTotalUnAnswered', computed(() => store.state.totalUnAnswered).value - 1)
+    }
     })
   .catch((e) => {
       console.log(e.message);
       alert("Submit error. Couldn't submit the answer");
   });
+  },
+  async clear(){
+    optionsSelected.value = []
+    //clear selected Toggle
+    for(let i = 0;i<selectedToggle.value.length;i++){
+      selectedToggle.value[i] = ""
+    }
+
+
   }
 })
 
 const handleOptionSelected =(value)=> {
-  console.log('value', value)
-  optionsSelected = value
-}
-const handleGetFiles = (files) => {
-  files = files;
+  optionsSelected.value = value
 }
 
 
 </script>
 <template>
-  <div class="container">
+  
     <MultipleCorrectVue
     :questionOrder="questionOrder"
       style="margin: auto"
@@ -120,27 +158,14 @@ const handleGetFiles = (files) => {
       :contest-name="contestName"
       :contest-type="contestType"
     ></MultipleCorrectVue>
-    <div style="margin: 5px"></div>
-    <!-- <div>
-      <span v-for="button in buttons" style="margin: 15px">
-        <input
-          type="button"
-          :value="button"
-          style="margin-top: 8px; padding: 8px"
-          @click="handlebutton(button)"
-          
-        />
-      </span>
-    </div> -->
+    <div>
+
   </div>
+  <!-- <div v-if="isLoading" style="position: absolute;display: flex;justify-content: center;align-items: center;height: 100%;width: 100%;">
+    <Loading style="position: relative;" :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></Loading>
+  </div> -->
+  
 </template>
 
 <style>
-/* .container { */
-  /* display: flex; */
-  /* flex-direction: column; */
-  /* justify-content: center;  */
-  /* align-items: center; */
-  /* height: 100vh; */
-/* } */
 </style>

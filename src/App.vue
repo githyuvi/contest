@@ -6,7 +6,11 @@ import { useRouter } from "vue-router";
 import { ref as firebaseRef, getDatabase, get, child } from '@firebase/database';
 import { useStore } from 'vuex'
 
-console.log('app.vue running')
+import Loading from 'vue-loading-overlay';
+
+const isLoading = ref(false)
+
+
 const store = useStore()
 const dbRef = firebaseRef(getDatabase());
 const router = useRouter();
@@ -15,8 +19,11 @@ const userImageUrl = computed(() => store.state.userImageUrl)
 const isLoggedIn = ref(false);
 let auth;
 
-onMounted(() => {
-
+onMounted(async () => {
+  console.log('onMounted')
+  // console.log($route.meta.hideNavBar)
+  isLoading.value = true
+  console.log(isLoading.value)
   let navToggle = document.querySelector(".nav__toggle");
   let navWrapper = document.querySelector(".nav__wrapper");
   navToggle.addEventListener("click", function () {
@@ -31,162 +38,232 @@ onMounted(() => {
     }
   });
 
-navWrapper.addEventListener("click", function() {
-  if (navWrapper.classList.contains("active")) {
-    this.setAttribute("aria-expanded", "false");
-    this.setAttribute("aria-label", "menu");
-    navWrapper.classList.remove("active");
-  } else {
-    navWrapper.classList.add("active");
-    this.setAttribute("aria-label", "close menu");
-    this.setAttribute("aria-expanded", "true");
-  }
-})
-
-  console.log('onmounted called')
+  navWrapper.addEventListener("click", function () {
+    if (navWrapper.classList.contains("active")) {
+      this.setAttribute("aria-expanded", "false");
+      this.setAttribute("aria-label", "menu");
+      navWrapper.classList.remove("active");
+    } else {
+      navWrapper.classList.add("active");
+      this.setAttribute("aria-label", "close menu");
+      this.setAttribute("aria-expanded", "true");
+    }
+  })
   auth = getAuth();
-  onAuthStateChanged(auth,(user)=> {
+  onAuthStateChanged(auth, async (user) => {
+    console.log('onauth')
     if (user) {
       isLoggedIn.value = true;
       handleIsLoggedIn();
-      hangelIsRegistered(user);
+      await hangelIsRegistered(user);
     } else {
       isLoggedIn.value = false;
       handleIsLoggedIn();
     }
+    isLoading.value = false
   });
+  
 });
 
-const handleSignOut = () => {
-  signOut(auth).then(() => {
-    store.commit('setIsRegistered', false)
-    // store.commit('setUserId','df')
-    router.push("/").then((result) => window.location.reload());
+const handleSignOut = async () => {
+  await signOut(auth).then(async () => {
+    await router.push("/").then((result) => window.location.reload());
+
   });
 };
 
 const handleIsLoggedIn = () => {
-    store.commit('setIsLoggedIn', isLoggedIn.value)
-    // store.commit('setUserId', user),
-    // store.commit('setUsername', isLoggedIn.value),
-    // store.commit('setUserEmail', isLoggedIn.value)
-  }
+  store.commit('setIsLoggedIn', isLoggedIn.value)
+}
 
-const hangelIsRegistered = (user) => {
-  get(child(dbRef, `users/` + user.uid)).then((snapshot) => {
-  if (snapshot.exists()) {
-    console.log(snapshot.val());
-    store.commit('setIsRegistered', true)
-  } else {
-    console.log("No data available");
-  }
-}).catch((error) => {
-  console.error(error);
-});
+const hangelIsRegistered = async (user) => {
+  // console.log('handleisregistered')
+  await get(child(dbRef, `users/` + user.uid)).then((snapshot) => {
+    // console.log('snapshot', snapshot)
+    if (snapshot.exists()) {
+      store.commit('setIsRegistered', true)
+    } else {
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
 }
 
 </script>
 
 <template>
-<header class="site-header">
-      <div class="wrapper site-header__wrapper">
-        <div class="site-header__start">
-          <a href="#" class="brand">CNI</a>
-          
-        </div>
-        <div class="site-header__middle">
-          <nav class="nav">
-            <button class="nav__toggle" aria-expanded="false" type="button">
-              menu
-            </button>
-            <ul class="nav__wrapper">
-              <li class="nav__item"><router-link to="/"> Home </router-link></li>
-              <!-- <li class="nav__item"><router-link to="/contest1"> Contest 1 </router-link></li>
-              <li class="nav__item"><router-link to="/contest2"> Contest 2 </router-link></li>
-              <li class="nav__item"><router-link to="/contest3"> Contest 3 </router-link></li> -->
-              <li class="nav__item"><router-link to="/live1"> Live 1 </router-link></li>
-              <!-- <li class="nav__item"><router-link to="/q4"> Q4 </router-link></li> -->
-            </ul>
-          </nav>
-        </div>
-        <div class="site-header__end">
-          <button v-if="!isLoggedIn"><router-link to="/login"> Login </router-link></button>
-          <button @click="handleSignOut" v-if="isLoggedIn"> Sign Out</button>
-          <img  :src="userImageUrl" alt="userphoto" v-if="isLoggedIn" style="height: 32px; width: 32px; margin-left: 10px;">
-        </div>
+  
+  <header v-if="!$route.meta.hideNavBar && !isLoading" class="site-header v-cloak">
+    <div class="wrapper site-header__wrapper">
+      <div class="site-header__start">
+        <div><a href="#" class="brand">CMI</a></div>
+      
+        <a style="font-size: small;" href="#" class="brand">Tomato</a>
+
       </div>
-</header>
-
+      <div class="site-header__middle">
+        <nav class="nav">
+          <button class="nav__toggle" aria-expanded="false" type="button">
+            menu
+          </button>
+          <ul class="nav__wrapper">
+            <!-- <li class="nav__item"><router-link to="/"> Home </router-link></li>
+            <li class="nav__item"><router-link to="/register"> Register </router-link></li> -->
+          </ul>
+        </nav>
+      </div>
+      <div class="site-header__end">
+        <div class="loginbuttoncontainer">
+        <button v-if="!isLoggedIn"><router-link to="/login"> Login </router-link></button>
+        <button @click="handleSignOut" v-if="isLoggedIn"> Sign Out</button>
+      </div>
+      </div>
+    </div>
+  </header>
+  <div v-if="isLoading" style="display: flex; justify-content: center;align-items: center;">
+  <Loading style="position: relative;" :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></Loading>
+</div>
   <router-view />
-
-    
 </template>
 
 <style scoped>
-
-
-/* header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-nav {
-  width: 100%;
-  font-size: 2rem;
-  text-align: center;
-  margin: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 1rem;
-  border: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-/* @media (min-width: 1024px) { */
-  /* header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  } */
-
-  /* .logo {
-    margin: 0 2rem 0 0;
-  } */
-
-  /* header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  } */
-/* } */
-
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}table{border-collapse:collapse;border-spacing:0}
+@import 'node_modules/vue-loading-overlay/dist/css/index.css';
+[v-cloak]{
+  display: none;
+}
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline
+}
 
-.sign-out-button {
-  background-color: #def7ff;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block
+}
+
+body {
+  line-height: 1
+}
+
+ol,
+ul {
+  list-style: none
+}
+
+blockquote,
+q {
+  quotes: none
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0
 }
 
 .wrapper {
+  width: 100vw;
   max-width: 1140px;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -214,106 +291,66 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
-.sr-only {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  padding: 0;
-  border: 0;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-
-.button {
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
-  color: #fff;
-  background-color: #2fa0f6;
-  min-width: 120px;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.button svg {
-  display: inline-block;
-  vertical-align: middle;
-  width: 24px;
-  height: 24px;
-  fill: #fff;
-}
-
-.button span {
-  display: none;
-}
-
-@media (min-width: 600px) {
-  .button span {
-    display: initial;
-  }
-}
-
-.button--icon {
-  min-width: initial;
-  padding: 0.5rem;
-}
 
 .brand {
   font-weight: bold;
-  font-size: 20px; }
+  font-size: 20px;
+}
 
 .site-header {
   position: relative;
-  background-color: #def7ff; }
-
+  width: 100%;
+  background-color: #422d95;
+  
+}
+.site-header *{
+  color: white;
+}
 .site-header__wrapper {
   display: flex;
+  width: 100vw;
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  padding-bottom: 1rem; }
-  @media (min-width: 660px) {
-    .site-header__wrapper {
-      padding-top: 0;
-      padding-bottom: 0; } }
-@media (max-width: 659px) {
-  .site-header__end {
-    padding-right: 4rem; } }
+  padding-bottom: 1rem;
+}
 
-@media (min-width: 660px) {
+@media (min-width: 10px) {
+  .site-header__wrapper {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+
+@media (min-width: 10px) {
   .nav__wrapper {
-    display: flex; } }
+    display: flex;
+  }
+}
 
-@media (max-width: 659px) {
-  .nav__wrapper {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    z-index: 1;
-    background-color: #d9f0f7;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
-    .nav__wrapper.active {
-      visibility: visible;
-      opacity: 1;
-      transform: translateY(0); } }
-
-.nav__item  a {
+.nav__item a {
   display: block;
-  padding: 1.5rem 1rem; }
+  padding: 0.75rem 0.5rem;
+}
 
 .nav__toggle {
-  display: none; }
-  @media (max-width: 659px) {
-    .nav__toggle {
-      display: block;
-      position: absolute;
-      right: 1rem;
-      top: 1rem; } }
+  display: none;
+}
+
+.loginbuttoncontainer button {
+    width: max-content;
+    padding: 4px 5px;
+    color: #422d95; 
+    background-color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.loginbuttoncontainer a {
+  color: #422d95;
+}
 
 
 </style>

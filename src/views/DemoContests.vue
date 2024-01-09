@@ -12,7 +12,7 @@ export default {
 components: { DemoContest },
   computed: {
     receivedData() {
-      return this.$route.params.data; // Access the data from the route parameters
+      return this.$route.params.data;
     }
   }
 };

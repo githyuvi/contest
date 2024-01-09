@@ -1,8 +1,6 @@
 // store.js
 import { createStore } from 'vuex'
 
-console.log("store running")
-
 const store = createStore({
   state() {
     return {
@@ -12,6 +10,9 @@ const store = createStore({
       userName: '',
       userEmail: '',
       userImageUrl: '',
+      questionData:{"answerstatus":{}},
+      totalAnswered:0,
+      totalUnAnswered:0
     }
   },
   mutations: {
@@ -39,6 +40,15 @@ const store = createStore({
       state.userImageUrl = value
       localStorage.setItem('userImageUrl', JSON.stringify(value));
     },
+    setQuestionData(state, value) {
+      state.questionData = value
+    },
+    setTotalAnswered(state, value) {
+      state.totalAnswered = value
+    },
+    setTotalUnAnswered(state, value) {
+      state.totalUnAnswered = value
+    }
   }
 
   
@@ -46,7 +56,6 @@ const store = createStore({
 
 const storedIsLoggedIn = localStorage.getItem('isLoggedIn');
 if (storedIsLoggedIn == 'true') {
-  console.log('storedisloggedin', storedIsLoggedIn)
   store.commit('setIsLoggedIn', JSON.parse(storedIsLoggedIn));
 }
 
@@ -58,7 +67,6 @@ if (storedIsLoggedIn == 'true') {
 const storedUserId = localStorage.getItem('userId');
 if (storedIsLoggedIn == 'true') {
   store.commit('setUserId', JSON.parse(storedUserId));
-  console.log("storedUserId", storedUserId)
 }
 
 const storedUserName = localStorage.getItem('userName');

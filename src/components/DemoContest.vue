@@ -35,7 +35,6 @@ const deskey = ref(0)
 const next = () => {
     
     index++
-    console.log(index)
     if(index<= -1){
         index = questionObjects.length-1
     }
@@ -83,7 +82,6 @@ const previous = () => {
 }
 
 getContestQuestions({contestName:props.contestName, contestType:"democontest"}).then((result) => {
-    // console.log('result', result)
     questionObjects = result.data
     next()
     downloaded.value = true

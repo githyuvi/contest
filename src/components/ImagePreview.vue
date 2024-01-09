@@ -1,59 +1,48 @@
 <template>
-  <div>
+  <div style="margin-bottom: 20px;">
     <input
       hidden
-      type="file"
       ref="fileInput"
+      type="file"
       accept="image/*"
       multiple
       @change="handleFileUpload"
     />
-    <button @click="addMoreFiles" :disabled="files.length >= 5">
+    <div class="button-container">
+    <button @click="addMoreFiles" :disabled="filesReactive.length >= 5">
       Add Files
     </button>
-    <!-- <button @click="submitFiles" :disabled="files.length === 0">Submit</button> -->
-  </div>
-  <!--     
-<div class="slide">
-  <div class="slide-container" >
-    <div class="slide-wrapper">
-      <div class="slide-item" v-for="(file, index) in files" :key="index">
-        <img :src="file.url" :alt="file.name" style="height: 60vh; width: fit-content;"/>
-        <div></div>
-        <button @click="removeFile(index)">Remove</button>
-      </div>
     </div>
+    <p>*You can only upload a maximum of 5 files</p>
+    <p>*Size of each file should be maximum of 1 MB</p>
   </div>
-</div> -->
 
-  <!-- <div class="slide-wrapper"> -->
-  <!-- <VDContainer
-     
-  :data=files      
-  
-  type="sort"        
-  @getData=funcName  
-  >
-  
-  <template v-slot:VDC="{data, index}">
-      <img :src="data.url" :alt="data.name" style="height: 30vh; width: fit-content; margin: 5px;"/>
-      <div></div>
-      <button @click="removeFile(index)">Remove</button>
-      {{  data.name }}
-  
-  </template>
-  
-</VDContainer> -->
 
-  <!-- </div> -->
+  <!-- <div class="slide-container" v-if="filesReactive.length > 0">
+    <VueDraggableNext v-model="filesReactive" class="slide-wrapper">
+      <transition-group>
+        <div
+          class="slide-item"
+          v-for="(file, index) in filesReactive"
+          :key="index"
+        >
+          <img
+            :src="file.url"
+            :alt="file.name"
+            style="margin-top: 5px; max-width: 50vw; max-height: 50vh"
+          />
+          <div></div>
+          <button @click="removeFile(index)">Remove</button>
+        </div>
+      </transition-group>
+    </VueDraggableNext>
+  </div> -->
 
-  <!-- <button @click="getData">getData</button> -->
-  <!-- <div class="slide-wrapper"> -->
   <div class="slide">
-    <div class="slide-container" v-if="files.length > 0">
-      <draggable v-model="files" class="slide-wrapper">
+    <div class="slide-container" v-if="filesReactive.length > 0">
+      <VueDraggableNext v-model="filesReactive" class="slide-wrapper">
         <transition-group>
-          <div class="slide-item" v-for="(file, index) in files" :key="index">
+          <div class="slide-item" v-for="(file, index) in filesReactive" :key="index">
             <img
               :src="file.url"
               :alt="file.name"
@@ -63,107 +52,124 @@
             <button @click="removeFile(index)">Remove</button>
           </div>
         </transition-group>
-      </draggable>
-      <!-- </div> -->
+      </VueDraggableNext>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { VueDraggableNext } from "vue-draggable-next";
-export default {
-  components: {
-    draggable: VueDraggableNext,
-  },
-  data() {
-    return {
-      files: [],
-      imageFiles: [],
-    };
-  },
-  methods: {
-    handleFileUpload() {
-      const files = this.$refs.fileInput.files;
-      const sum = this.files.length + files.length;
-      if (sum > 5) {
-        alert("You can only upload a maximum of 5 files");
-      }
-      for (let i = 0; i < files.length && i < 5 - this.files.length; i++) {
-        this.imageFiles.push(files[i]);
-      }
-      // console.log("imageFiles", imageFiles);
-      this.processFiles(files, 5 - this.files.length);
-      this.$emit("get-files",this.imageFiles)
-    },
-    processFiles(files) {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.resizeImage(reader.result, 32000, 24000, (resizedDataUrl) => {
-            this.files.push({
-              name: file.name,
-              type: file.type,
-              url: resizedDataUrl,
-            });
-          });
-        };
-        reader.readAsDataURL(file);
-        console.log("file", file);
-      }
-    },
-    resizeImage(dataUrl, maxWidth, maxHeight, callback) {
-      const image = new Image();
-      image.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = image.width;
-        let height = image.height;
+import { computed, onMounted, ref, reactive } from "vue";
 
-        if (width > height) {
-          if (width > maxWidth) {
-            height *= maxWidth / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width *= maxHeight / height;
-            height = maxHeight;
-          }
-        }
 
-        canvas.width = width;
-        canvas.height = height;
+const filesReactive = reactive([]);
+var imageFiles = [];
+const fileInput = ref(null);
 
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0, width, height);
+const emits = defineEmits(["get-files"]);
 
-        const resizedDataUrl = canvas.toDataURL("image/jpeg");
-        callback(resizedDataUrl);
-      };
-      image.src = dataUrl;
-    },
-    removeFile(index) {
-      this.files.splice(index, 1);
-      const fileInput = this.$refs.fileInput;
-      const selectedFiles = Array.from(fileInput.files);
-      selectedFiles.splice(index, 1);
-      fileInput.value = "";
-
-      // Reassign the updated file list to the `files` property of the `this.$refs.fileInput` element
-      // fileInput.files = new DataTransfer().files.concat(selectedFiles);
-    },
-    addMoreFiles() {
-      this.$refs.fileInput.click();
-    },
-    submitFiles() {
-      // Logic to submit the files to the server
-      console.log(this.files);
-    },
-  },
+const handleFileUpload = () => {
+  var files = fileInput.value.files;
+  const sum = filesReactive.length + files.length;
+  if (sum > 5) {
+    alert("You can only upload a maximum of 5 files");
+  }
+  for (let i = 0; i < files.length && i < 5 - filesReactive.length; i++) {
+    imageFiles.push(files[i]);
+  }
+  processFiles(files, 5 - filesReactive.length);
+  emits("get-files", imageFiles);
 };
+
+const processFiles = (files, limit) => {
+  for (let i = 0; i < files.length && i < limit; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+    reader.onload = () => {
+      resizeImage(reader.result, 32000, 24000, (resizedDataUrl) => {
+        filesReactive.push({
+          name: file.name,
+          type: file.type,
+          url: resizedDataUrl,
+        });
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const resizeImage = (dataUrl, maxWidth, maxHeight, callback) => {
+  const image = new Image();
+  image.onload = () => {
+    const canvas = document.createElement("canvas");
+    let width = image.width;
+    let height = image.height;
+
+    if (width > height) {
+      if (width > maxWidth) {
+        height *= maxWidth / width;
+        width = maxWidth;
+      }
+    } else {
+      if (height > maxHeight) {
+        width *= maxHeight / height;
+        height = maxHeight;
+      }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0, width, height);
+
+    const resizedDataUrl = canvas.toDataURL("image/jpeg");
+    callback(resizedDataUrl);
+  };
+  image.src = dataUrl;
+};
+
+const removeFile = (index) => {
+  filesReactive.splice(index, 1);
+  imageFiles.splice(index, 1);
+  emits("get-files", imageFiles)
+};
+
+const addMoreFiles = () => {
+  fileInput.value.click();
+};
+
 </script>
 
 <style scoped>
+
+img {
+  width: 100%;
+  height: auto;
+}
+.slide-item:hover {
+  border-width: 10px;
+  border-color: red;
+  border-style: solid;
+  box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.slide-item {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.controls {
+  margin-top: 10px;
+  text-align: center;
+}
+
+button {
+  margin: 0 5px;
+}
+
+
 .slide {
   display: flex;
   flex-direction: column;
@@ -176,44 +182,31 @@ export default {
   margin: 1px;
   /* height: 80vh; */
   /* padding-bottom: 40px;
-padding-top: 40px; */
+  padding-top: 40px; */
   border: solid #d12f2f;
   border-width: 0.4vw;
   border-radius: 10px;
-  padding: 30px 10px 40vw 10px;
+  padding: 30px 10px 20px 10px;
 }
 
 .slide-wrapper {
   display: flex;
 }
-.slide-item:hover {
-  border-width: 10px;
-  border-color: red;
-  border-style: solid;
-  box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+
+.button-container {
+  padding: 10px;
+  position: relative;
 }
 
-.slide-item {
-  flex-shrink: 0;
-  /* width: 200px; */
-  /* height: 50vh; */
-  /* height: 70vh; */
-  margin-right: 10px;
-}
-/* 
-.slide-item img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-} */
-
-.controls {
-  margin-top: 10px;
-  text-align: center;
+.button-container button {
+    margin: 0 5px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
 
-button {
-  margin: 0 5px;
-}
+
 </style>
+

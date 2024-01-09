@@ -8,51 +8,70 @@ import {
   set,
   get,
   child,
-  
+
 } from "firebase/database";
+
+import Loading from 'vue-loading-overlay';
+const isLoading = ref(false)
+const fullPage = ref(true)
 
 const store = useStore();
 const db = getDatabase();
 const dbRef = firebaseRef(db);
 const props = defineProps({
-    question: Array,
-    answers: Array,
-    questionLocation: String,
-    questionOrder: String,
-    contestType: String,
-    contestName: String,
+  question: Array,
+  answers: Array,
+  questionLocation: String,
+  questionOrder: Number,
+  contestType: String,
+  contestName: String,
+  submissionType: String,
 })
 
 const userId = computed(() => store.state.userId)
-const userName = computed(() => store.state.userName)
-const userEmail = computed(() => store.state.userEmail)
-const isLoggedIn = computed(() => store.state.isLoggedIn)
+const questionData = computed(() => store.state.questionData)
 
 var options = reactive([])
-var selectedToggle = reactive([])
-var optionSelected = ref('')
+var selectedToggle = ref([])
+var optionSelected = null
 
-onMounted(async() => {
+onMounted(async () => {
+  
+  isLoading.value = true
+  let userAnswers = []
+  
   initializeOptions(props.answers);
-  console.log('userid', userId.value)
-  await get(child(dbRef,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  `answers/` + props.questionLocation + "/options"))
-    .then((snapshot) => {
+  if(questionData.value[props.questionLocation] != null && questionData.value[props.questionLocation].userAnswers != null){
+    userAnswers.splice(0, userAnswers.length)
+    userAnswers.push(...questionData.value[props.questionLocation].userAnswers)
+    for (var i = 0; i < userAnswers.length; i++) {
+          const selectedIndex = parseInt(userAnswers) - 1;
+          selectedToggle.value[selectedIndex] = "selected";
+          optionSelected = userAnswers
+
+        }
+    }
+    else {
+
+    // console.log(props.submissionType)
+  const snapshot = await get(child(dbRef, props.submissionType + "contestsubmission/" + props.contestName + "/" + userId.value + "/" + `answers/` + props.questionLocation + "/options"))
       if (snapshot.exists()) {
-        const userAnswers = snapshot.val();
+        userAnswers = snapshot.val();
+        if(questionData.value[props.questionLocation] == null)
+        questionData.value[props.questionLocation] = {}
+        questionData.value[props.questionLocation].userAnswers = userAnswers
+        store.commit('setQuestionData', questionData.value)
+        
         for (var i = 0; i < userAnswers.length; i++) {
           const selectedIndex = parseInt(userAnswers) - 1;
-          selectedToggle[selectedIndex] = "selected";
+          selectedToggle.value[selectedIndex] = "selected";
           optionSelected = userAnswers
+
         }
       }
-    })
-    .catch((error) => {
-      console.log(error);
-      alert("couldn't fetch results");
-    });
+    }
 
-    console.log('optionsSelected', optionSelected)
-    console.log('options', options)
+  isLoading.value = false
 })
 
 const initializeOptions = (answers) => {
@@ -70,65 +89,76 @@ const initializeOptions = (answers) => {
 
 defineExpose({
   async save() {
-    if(optionSelected == ''){
-        alert('Please select an option')
-        return
-      }
-        await set(
-            firebaseRef(db,"livecontestsubmission/" + props.contestName + "/" + userId.value + "/" +  "answers/" + props.questionLocation + "/options"),
-            optionSelected
-          )
-          .then((result) => {
-              // router.push('./pollresults')
-              console.log('value', result)
-            })
-          .catch((e) => {
-              console.log(e.message);
-              alert("Submit error. Couldn't submit the answer");
-          });
+    //null true - a- , u+
+    //null false no change
+    //not null true no change
+    //not null false
+    
+    
+    await set(
+      firebaseRef(db, props.submissionType + "contestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/options"),
+      optionSelected
+    )
+      .then((result) => {
+        if(questionData.value[props.questionLocation] == null)
+        questionData.value[props.questionLocation] = {}
+        questionData.value[props.questionLocation].userAnswers = optionSelected
+        store.commit('setQuestionData', questionData.value)
+        if((optionSelected == '' || optionSelected == [] || optionSelected == null) && questionData.value["answerstatus"][props.questionLocation] ){
+      questionData.value["answerstatus"][props.questionLocation] = false
+      store.commit('setTotalAnswered', computed(() => store.state.totalAnswered).value - 1)
+      store.commit('setTotalUnAnswered', computed(() => store.state.totalUnAnswered).value + 1)
+      
+    }
+    if(optionSelected != '' && optionSelected != [] && optionSelected != null && !questionData.value["answerstatus"][props.questionLocation]){
+      
+      questionData.value["answerstatus"][props.questionLocation] = true
+      store.commit('setTotalAnswered', computed(() => store.state.totalAnswered).value + 1)
+      store.commit('setTotalUnAnswered', computed(() => store.state.totalUnAnswered).value - 1)
+    }
+      })
+      .catch((e) => {
+        console.log(e.message);
+        alert('could not submit')
+      });
+
+      
+  },
+  async clear() {
+    optionSelected = null
+    //clear selected Toggle
+    // console.log('selected toggle', selectedToggle.value)
+    for (let i = 0; i < selectedToggle.value.length; i++) {
+      selectedToggle.value[i] = ""
+    }
+    // console.log('selected toggle', selectedToggle.value)
+
   }
 })
 
-const handleOptionSelected =(value)=> {
-  console.log('value', value)
+const handleOptionSelected = (value) => {
   optionSelected = value
 }
 
 </script>
 <template>
-  <div class="container">
-    <SingleCorrectVue
-      style="margin: auto"
-      :questionOrder="questionOrder"
-      :options="options"
-      :question="question"
-      :selected-toggle="selectedToggle"
-      :contest-name="contestName"
-      :contest-type="contestType"
-      @get-option-selected="handleOptionSelected"
+  <SingleCorrectVue style="margin: auto" :questionOrder="questionOrder" :options="options" :question="question"
+    :selected-toggle="selectedToggle" :contest-name="contestName" :contest-type="contestType"
+    @get-option-selected="handleOptionSelected"></SingleCorrectVue>
 
-    ></SingleCorrectVue>
-    <div style="margin: 5px"></div>
-    <!-- <div>
-        <span v-for="button in buttons" style="margin: 15px">
-            <input
-                type="button"
-                :value="button"
-                style="margin-top: 8px; padding: 8px"
-                @click="handlebutton(button)"
-            />
-        </span>
+    <!-- <div v-if="isLoading" style="position: absolute;display: flex;justify-content: center;align-items: center;height: 100%;width: 100%;">
+    <Loading style="position: relative;" :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></Loading>
     </div> -->
-  </div>
+
+  
 </template>
 
 <style>
-.container {
-  display: flex;
-  flex-direction: column;
-  /* justify-content: center;  */
-  align-items: center;
-  /* width: 100%; */
-  /* height: 100vh; */
-}
+  .vld-parent {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    top: 50;
+    left: 50;
+  }
 </style>
