@@ -314,6 +314,18 @@ exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   }
 })
 
+exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
+  let hasAccess = false
+  try {
+    const uid = request.auth.uid;
+    hasAccess = await hasAdminAccess(uid)
+    return flag
+  } catch (error) {
+    console.error('Error', error);
+  }
+  return hasAccess
+})
+
 exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
@@ -705,16 +717,3 @@ exports.getImages = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
     
   }
 })
-
-
-
-
-
-
-
-
-
-
-
-
-

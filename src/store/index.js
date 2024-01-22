@@ -12,7 +12,8 @@ const store = createStore({
       userImageUrl: '',
       questionData:{"answerstatus":{}},
       totalAnswered:0,
-      totalUnAnswered:0
+      totalUnAnswered:0,
+      databaseInstance: null,
     }
   },
   mutations: {
@@ -48,7 +49,10 @@ const store = createStore({
     },
     setTotalUnAnswered(state, value) {
       state.totalUnAnswered = value
-    }
+    },
+    setDatabaseInstance(state, value) {
+      state.databaseInstance = value
+    },
   }
 
   
@@ -61,7 +65,8 @@ if (storedIsLoggedIn == 'true') {
 
 const storedIsRegistered = localStorage.getItem('isRegistered');
 if (storedIsLoggedIn == 'true') {
-  store.commit('setIsRegistered', JSON.parse(storedIsRegistered));
+  if(storedIsRegistered != null && storedIsRegistered !== 'undefined')
+  store.commit('setIsRegistered', JSON.parse(storedIsRegistered ));
 }
 
 const storedUserId = localStorage.getItem('userId');

@@ -30,10 +30,10 @@
             <div><img :src="image" alt="Scanned Document"></div>
             <div class="image-controls">
                 <button @click="moveImageUp(index)" :disabled="index === 0"><i style="padding: 8px 5px;"
-                        class="fas fa-chevron-up"></i></button>
+                        class="fas fa-chevron-up"></i>up</button>
                 <button @click="moveImageDown(index)" :disabled="index === images.length - 1"> <i style="padding: 8px 5px;"
-                        class="fas fa-chevron-down"></i></button>
-                <button @click="removeImage(index)"><i style="padding: 8px 5px;" class="fas fa-trash-alt"></i></button>
+                        class="fas fa-chevron-down"></i>down</button>
+                <button @click="removeImage(index)"><i style="padding: 8px 5px;" class="fas fa-trash-alt"></i>delete</button>
             </div>
         </div>
     </div>
@@ -64,10 +64,7 @@ const videoWidth = ref(0)
 const videoHeight = ref(0)
 
 const props = defineProps({
-    files: {
-        type: Array,
-        default: () => []
-    }
+    files:Array
 });
 
 const images = ref([]);
@@ -244,6 +241,7 @@ const moveImageUp = (index) => {
         imageFiles.splice(index, 1);
         imageFiles.splice(index - 1, 0, temp2);
     }
+    emits("get-files", imageFiles);
 };
 
 const moveImageDown = (index) => {
@@ -256,11 +254,13 @@ const moveImageDown = (index) => {
         imageFiles.splice(index, 1);
         imageFiles.splice(index + 1, 0, temp2);
     }
+    emits("get-files", imageFiles);
 };
 
 const removeImage = (index) => {
     images.value.splice(index, 1);
     imageFiles.splice(index, 1);
+    emits("get-files", imageFiles);
 };
 
 const convertBase64ToFile = (base64String, fileName) => {

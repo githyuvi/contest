@@ -309,10 +309,6 @@ onMounted(async () => {
         }
     }, 1000);
 
-
-
-
-
     await getContestQuestions({ contestName: props.contestName, contestType: "livecontest" }).then(async (result) => {
 
         let questionData = result.data

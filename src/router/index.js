@@ -60,6 +60,15 @@ const routes = [
     },
   },
   {
+    path: "/exam/:data",
+    name: "Exam",
+    component: () => import("../views/Exam/Exam.vue"),
+    meta: {
+      requiresAuth: true,
+      requiresRegistration: false,
+    },
+  },
+  {
     path: "/mockcontest",
     name: "MockContest",
     component: () => import("../views/MockContest.vue"),
