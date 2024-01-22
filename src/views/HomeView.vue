@@ -69,7 +69,7 @@ const answer = ref(4)
    <div>
     <Header></Header>
     HomeView
-    <RouterLink to="'exam/mock20'">Mock 20</RouterLink>
+    <RouterLink to="/exam/mock20">Mock 20</RouterLink>
     <!-- <NumericAnswer :answer-chosen="answer" @on-answer-change="handleOnAnswerChange"></NumericAnswer>
     <DescriptiveAnswer :files-uploaded="[]" @on-files-change="(value) => console.log(value)"></DescriptiveAnswer> -->
     
