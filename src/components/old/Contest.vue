@@ -8,8 +8,8 @@ import Numerical from './Numerical.vue'
 import { ref, reactive, onMounted, computed } from 'vue';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 import Loading from 'vue-loading-overlay';
-import router from '../router';
-import { qType } from '../utility/GlobalData.js'
+import router from '../../router';
+import { qType } from '../../utility/GlobalData.js'
 import { getDatabase, get, ref as firebaseRef, child } from 'firebase/database';
 import { useStore } from "vuex";
 import { onBeforeRouteLeave } from 'vue-router';

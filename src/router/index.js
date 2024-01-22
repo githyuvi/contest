@@ -60,30 +60,6 @@ const routes = [
     },
   },
   {
-    path: "/mockcontest",
-    name: "MockContest",
-    component: () => import("../views/MockContest.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresRegistration: true,
-      hideNavBar: true
-    },
-  },
-  // {
-  //   path: "/:pathMatch(.*)*",
-  //   redirect: '/'
-  // },
-  {
-    path: "/mock20",
-    name: "Mock20",
-    component: () => import("../views/Mock20.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresRegistration: true,
-      hideNavBar: true
-    },
-  },
-  {
     path: "/mockcontestscore",
     name: "MockContestScore",
     component: () => import("../views/MockContestScore.vue"),
