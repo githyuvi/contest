@@ -57,9 +57,6 @@
 // })
 
 import { ref } from 'vue';
-import ExamWindow from '../components/Exam/ExamWindow.vue'
-import NumericAnswer from '../components/Exam/NumericAnswer.vue';
-import DescriptiveAnswer from '../components/Exam/DescriptiveAnswer.vue';
 import Header from '../components/Header.vue';
 function handleOnAnswerChange(value) {
     console.log(value)
@@ -72,6 +69,7 @@ const answer = ref(4)
    <div>
     <Header></Header>
     HomeView
+    <RouterLink to="'exam/mock20'">Mock 20</RouterLink>
     <!-- <NumericAnswer :answer-chosen="answer" @on-answer-change="handleOnAnswerChange"></NumericAnswer>
     <DescriptiveAnswer :files-uploaded="[]" @on-files-change="(value) => console.log(value)"></DescriptiveAnswer> -->
     
