@@ -51,15 +51,6 @@ const routes = [
     },
   },
   {
-    path: "/democontests/:data",
-    name: "DemoContests",
-    component: () => import("../views/DemoContests.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresRegistration: false,
-    },
-  },
-  {
     path: "/exam/:data",
     name: "Exam",
     component: () => import("../views/Exam/Exam.vue"),
