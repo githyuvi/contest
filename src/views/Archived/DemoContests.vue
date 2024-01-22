@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import DemoContest from '../components/DemoContest.vue';
+import DemoContest from '../../components/old/DemoContest.vue';
 export default {
 components: { DemoContest },
   computed: {
