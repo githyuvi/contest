@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted,ref } from 'vue';
-import Contest from '../components/Contest.vue';
+import Contest from '../components/old/Contest.vue';
 
 import { getDatabase, ref as firebaseRef, get, child, off } from "firebase/database";
 import Loading from 'vue-loading-overlay';
