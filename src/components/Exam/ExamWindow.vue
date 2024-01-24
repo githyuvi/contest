@@ -1,5 +1,4 @@
 <template>
-    
     <div class="mb-20">
         <ExamMainArea @change-question="handleQuestionChange" :contest-start-time="props.contestStartTime"
             :contest-end-time="props.contestEndTime" ref="examMainAreaComponent" :key="examMainAreaKey"
@@ -11,17 +10,13 @@
     <div class="button-container" v-if="questionsDownloaded">
         <button @click="previous"><i class="fas fa-chevron-left"></i></button>
         <button @click="next"><i class="fas fa-chevron-right"></i></button>
-        <button class="clear" @click="clear">Clear</button>
-        <button @click="() => handleOnSave(index)">Save & Next</button>
+        <button v-if="props.submissionType != 'archived'" class="clear" @click="clear">Clear</button>
+        <button v-if="props.submissionType != 'archived'" @click="() => handleOnSave(index)">Save & Next</button>
     </div>
     <ExamInstructionsModal v-if="examInstructionsVisible" @close-instruction-modal="() => examInstructionsVisible = false"></ExamInstructionsModal>
 </div>
-    
-        
-    
     <div>
         <Loading :active.sync="!questionsDownloaded" :can-cancel="true" :is-full-page="true"></Loading>
-
     </div>
 </template>
 
@@ -70,7 +65,7 @@ onBeforeMount(async () => {
             let questionMarks = question.questionMarks
 
             //convert question Data and options data into displayable data
-            let questionParts = await getQuestionData(props.contestType, props.contestName, userId.value, question.questionParts)
+            let questionParts = await getQuestionData('livecontest', props.contestName, userId.value, question.questionParts)
             let optionsArray = null
             let submissions = null
 

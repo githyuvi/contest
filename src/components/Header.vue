@@ -39,8 +39,8 @@
 
 <script setup>
 import { onMounted, computed } from 'vue'
-import LogoutButton from './CommonComponents.vue/LogoutButton.vue';
-import Menu from './CommonComponents.vue/Menu.vue';
+import LogoutButton from './CommonComponents/LogoutButton.vue';
+import Menu from './CommonComponents/Menu.vue';
 import { useStore } from 'vuex';
 
 const store = useStore()

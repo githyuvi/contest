@@ -43,15 +43,21 @@ const contestEndTime = ref(0)
 const isAdmin = ref(false)
 
 onBeforeMount(async () => {
-    await setTimings()
-    submissionType.value = getSubmissionType()
-    canViewExam.value = await canUserViewExam()
     const snapshot = await isUserAdmin()
     isAdmin.value = snapshot.data
-    console.log('can user view exam', canViewExam.value)
-    console.log(isAdmin.value);
+    // if user not admin, check is exam exists 
+    if(snapshot.data == false){
+        const examSnapshot = await get("livecontest/" + contestName.value)
+        if(examSnapshot.data == null){
+            await router.push('/')
+            window.location.reload()
+        }
+    }
+    if(!isAdmin.value) await setTimings()
+    submissionType.value = getSubmissionType()
+    console.log('submission type', submissionType.value)
+    canViewExam.value = await canUserViewExam()
     
-
     if(canViewExam.value == true && isAdmin.value == false){
         if(submissionType.value == 'live'){
             setExamTimer(startTime.value, onlineEndTime.value)
@@ -92,6 +98,10 @@ async function setTimings() {
 }
 function getSubmissionType() {
     let subType = ''
+    if(isAdmin.value){
+        subType = 'admin'
+        return subType
+    }
     const ct = new Date().getTime()
     if (startTime.value <= ct && ct <= onlineEndTime.value)
         subType = 'live'
@@ -104,7 +114,6 @@ function getSubmissionType() {
 async function canUserViewExam(){
     const result = await isUserAdmin()
     if(result.data == true){
-    submissionType.value = 'offline'
     return true
     }
 

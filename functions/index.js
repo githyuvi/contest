@@ -11,7 +11,7 @@ const {onCall, onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const  axios  = require("axios")
 const DOMParser = require('xmldom').DOMParser;
-const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, process.env.ALLOWED_ORIGIN3, process.env.ALLOWED_ORIGIN4]
+const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, process.env.ALLOWED_ORIGIN3, process.env.ALLOWED_ORIGIN4, process.env.ALLOWED_ORIGIN5]
 const BASE_URL = process.env.BASE_URL
 const AUTH = process.env.AUTH
 
@@ -266,7 +266,45 @@ exports.processXmlQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlStringReplaced, 'text/xml');
     const xmlJson = getQuestions(xmlDoc);
+    let ruleString = ''
+    
     await axios.put(baseUrl, { "questions" : xmlJson })
+    await axios.get(BASE_URL + '/.settings/rules.json?' + AUTH).then(async (result) => {
+      await axios.get(`${BASE_URL}/adminaccess.json?${AUTH}`).then((result)=> {
+        console.log(result.data)
+        adminUsers = result.data
+        
+        for(let i = 0;i<adminUsers.length;i++){
+          let uid = adminUsers[i]
+          if(i == adminUsers.length-1){
+            ruleString+=`auth.uid == '${uid}'`
+          }
+          else{
+            ruleString+=`auth.uid == '${uid}' || `
+          }
+        }
+        
+      })
+
+      const rulesData = result.data
+      const cn = contestName
+    
+      if(rulesData["rules"]["admincontestsubmission"] == null)
+      rulesData["rules"]["admincontestsubmission"] = {}
+      rulesData["rules"]["admincontestsubmission"][cn] = {
+          "$user_id": {
+              "answers": {
+                  ".read": `$user_id === auth.uid`,
+                  ".write": `$user_id === auth.uid && (${ruleString})`
+              }
+          }
+      }
+    
+      await axios.put(BASE_URL + '/.settings/rules.json?' + AUTH, rulesData).then((result) => {
+          console.log(result.data)
+      })
+    
+    })
   } catch (error) {
     console.error('Error parsing XML file:', error);
     throw error;
@@ -283,6 +321,8 @@ exports.getContestQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
       baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/democontest/' + uid + '/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
     if(contestType === 'livecontest') 
       baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+    if(contestType === 'archivedcontest') 
+      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/archivedcontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
     const contestQuestions = await axios.get(baseUrl)
     // return everything except correctAnswer
     const questions = contestQuestions.data.questions
@@ -313,7 +353,6 @@ exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
     throw error;
   }
 })
-
 exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   let hasAccess = false
   try {
@@ -325,7 +364,6 @@ exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   }
   return hasAccess
 })
-
 exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
@@ -717,3 +755,16 @@ exports.getImages = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
     
   }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -142,7 +142,6 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    console.log(examHeaderRef.value.clientHeight)
     style.value = {
         paddingTop: examHeaderRef.value.clientHeight + 'px'
     }

@@ -65,8 +65,9 @@ if (storedIsLoggedIn == 'true') {
 
 const storedIsRegistered = localStorage.getItem('isRegistered');
 if (storedIsLoggedIn == 'true') {
-  if(storedIsRegistered != null && storedIsRegistered !== 'undefined')
+  if(storedIsRegistered != null && storedIsRegistered !== 'undefined'){
   store.commit('setIsRegistered', JSON.parse(storedIsRegistered ));
+  }
 }
 
 const storedUserId = localStorage.getItem('userId');

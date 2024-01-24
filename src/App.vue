@@ -10,12 +10,10 @@ onBeforeMount(() => {
   console.log("app vue")
 })
 
-
 const store = useStore()
 const auth = getAuth()
 
-onMounted(async () => {
-  console.log("app vue")
+onBeforeMount(async () => {
   
     onAuthStateChanged(auth, async (user) => {
       console.log("onauth");
@@ -36,7 +34,8 @@ const handleIsLoggedIn = (value) => {
 }
 
 const handleIsRegistered = async (user) => {
-    store.commit('setIsRegistered', await isUserRegistered(user))
+    let isReg = await isUserRegistered(user)
+    store.commit('setIsRegistered', isReg)
 }
 
 </script>

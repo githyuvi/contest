@@ -3,7 +3,7 @@
         <p>
 
             <span id="timer">
-                00:00:00
+                
             </span>
         </p>
     </span>
@@ -38,7 +38,7 @@ onBeforeMount(() => {
         // If the count down is finished, write some text
         if (distance < 0) {
             clearInterval(x);
-            document.getElementById("timer").innerHTML = "EXPIRED";
+            document.getElementById("timer").innerHTML = "";
             console.log('timerOver');
             // alert('Your time is up. You will be redirected to home page.')
 

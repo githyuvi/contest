@@ -17,8 +17,8 @@
 
             <div class="site-header__end">
                 <ExamTimer class="pr-1" :timer-start="props.contestStartTime" :timer-end="props.contestEndTime"></ExamTimer>
-                <button style="color: #422d95;" class="submit-test-button" @click="showConfirmationModal">SUBMIT
-                    TEST</button>
+                <button style="color: #422d95;" class="submit-test-button" @click="showConfirmationModal">Go
+                    Home</button>
             </div>
         </div>
     </header>
@@ -41,11 +41,28 @@
     </div>
     <!-- </div> -->
     <!-- </div> -->
+    <div class="modal" id="confirmModal">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <hr>
+                        <p>Ending Test will take you back to Home Page</p>
+                        <!-- <p>Your Responses will be saved</p> -->
+                        <p>You can still come back during exam window.</p>
+                        <p>Are you sure you want to submit the test?</p>
+                        <hr>
+                        <div style="display: flex; justify-content: space-around;">
+                            <button @click="submitTest">Yes</button>
+                            <button @click="closeModal">No</button>
+                        </div>
+                    </div>
+    </div>
 </template>
 
 <script setup>
 import ExamTimer from './ExamTimer.vue';
 import { qType } from '../../utility/GlobalData';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 const props = defineProps({
     totalAnswered: Number,
     totalUnAnswered: Number,
@@ -61,7 +78,24 @@ const props = defineProps({
 function showConfirmationModal() {
     document.getElementById('confirmModal').style.display = 'block';
 }
+async function submitTest() {
+    // isLoading.value = true
+    // // await updateScore({ contestName: props.contestName })
+    // isLoading.value = false
+    // closeModal(); // Close the modal after submission
+    // if (props.showScore)
+    //     router.push(`/${props.scoreLink}`)
+    // else
+    //     await router.push('/')
+    // //reload
+    // location.reload()
+    await router.push('/')
+}
 
+function closeModal() {
+    document.getElementById('confirmModal').style.display = 'none';
+
+}
 
 </script>
 

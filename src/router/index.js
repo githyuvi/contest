@@ -1,13 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import store from "../store/index.js";
 
+const functions = getFunctions()
+const isUserAdmin = httpsCallable(functions, 'isUserAdmin')
 
 const routes = [
   {
     path: "/",
     name: "HomeView",
-    component: () => import("../views/HomeView.vue"),
+    component: () => import("../views/HomePage/HomeView.vue"),
     meta: {
       requiresAuth: false,
       requiresRegistration: false,
@@ -16,7 +19,7 @@ const routes = [
   {
     path: "/register",
     name: "Register",
-    component: () => import("../views/Registration/Register.vue"),
+    component: () => import("../views/RegistrationPage/Register.vue"),
     meta: {
       requiresAuth: true,
       requiresRegistration: false,
@@ -33,30 +36,19 @@ const routes = [
     },
   },
   {
-    path: "/democontestsubmit",
-    name: "DemoContestSubmit",
-    component: () => import("../views/DemoContestSubmit.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresRegistration: false,
-    },
-  },
-  {
-    path: "/livecontestsubmit",
-    name: "LiveContestSubmit",
-    component: () => import("../views/LiveContestSubmit.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresRegistration: false,
-    },
-  },
-  {
     path: "/exam/:data",
     name: "Exam",
-    component: () => import("../views/Exam/Exam.vue"),
+    component: () => import("../views/ExamPage/Exam.vue"),
     meta: {
       requiresAuth: true,
-      requiresRegistration: false,
+      requiresRegistration: true,
+    },
+  },
+  {
+    path: "/archivedexam/:data",
+    name: "ArchivedExam",
+    component: () => import("../views/ExamPage/ArchivedExam.vue"),
+    meta: {
     },
   },
   {
@@ -94,12 +86,10 @@ const routes = [
 {
     path: "/admin",
     name: "Admin",
-    component: () => import("../views/Admin.vue"),
+    component: () => import("../views/AdminPage/Admin.vue"),
     meta: {
-      requiresAuth: false,
-      hideNavBar:true,
-
-    },
+      requiresAdmin: true
+    }
 },
 
 {
@@ -139,57 +129,35 @@ router.beforeEach(async (to, from, next) => {
           flag = true;
         } else {
           flag = false;
-          
           next({
             path: '/register',
             query: { redirect: to.fullPath } // Pass the path user wanted to visit
           });
         }
       }
-      // if (
-      //   to.matched.some((record) => record.meta.requiresEvaluatorRegistration)
-      // ) {
-      //   const db = getDatabase();
-      //   const dbRef = firebaseRef(db);
-      //   const userId = store.state.userId;
 
-      //   await get(child(dbRef, "evaluators/" + userId.value + "/registered"))
-      //     .then((snapshot) => {
-      //       if (snapshot.exists()) {
-      //         const isEvaluatorRegistered = snapshot.val();
-      //         if (isEvaluatorRegistered) {
-      //           flag = true;
-      //         } else {
-      //           flag = false;
-      //           alert("First register to access this page");
-      //           next("/register");
-      //         }
-      //       }
-      //     })
-      //     .catch((error) => {
-      //       console.log(error);
-      //       alert("couldn't fetch results");
-      //     });
-      // }
       if (flag) next();
     } else {
       next({
         path: '/login',
         query: { redirect: to.fullPath } // Pass the path user wanted to visit
       });
-      
-
-    //   if(to.matched.some((record) => record.meta.isEvaluator))
-    //   {
-    //     next('/evaluate');
-    //   }
-    // else{
-    //     next('/');
-    // }
     }
-  } else {
-    next();
   }
+  else if(to.matched.some((record) => record.meta.requiresAdmin)){
+    if(await getCurrentUser()){
+      if((await isUserAdmin()).data){
+        next()
+      }
+      else{
+        alert("You don't have access")
+      }
+    }
+  }
+  else {
+    next()
+  }
+  
 });
 
 export default router;

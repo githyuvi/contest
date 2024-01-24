@@ -19,13 +19,15 @@ import { get} from "../Database/FirebaseDatabase"
 // };
 
 async function isUserRegistered(user) {
+    let flag = false
     await get(`users/${user.uid}`).then((snapshot) => {
         if (snapshot.status === "success" && snapshot.value !== null) {
-            return true
+            flag = true
         } else {
-            return false
+            flag = false
         }
     })
+    return flag
 }
 
 // // async function registerUser(user) {
