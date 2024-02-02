@@ -26,6 +26,7 @@ import Loading from 'vue-loading-overlay'
 import LoadingContainer from './LoadingContainer.vue';
 
 const functions = getFunctions()
+
 const isUserAdmin = httpsCallable(functions, 'isUserAdmin')
 const router = useRouter()
 const route = useRoute()

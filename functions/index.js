@@ -11,14 +11,14 @@ const {onCall, onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const  axios  = require("axios")
 const DOMParser = require('xmldom').DOMParser;
-const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, process.env.ALLOWED_ORIGIN3, process.env.ALLOWED_ORIGIN4, process.env.ALLOWED_ORIGIN5]
+// const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, process.env.ALLOWED_ORIGIN3, process.env.ALLOWED_ORIGIN4, process.env.ALLOWED_ORIGIN5, "http://localhost:5173"]
+const ALLOWED_ORIGINS = ["http://localhost:5173"]
 const BASE_URL = process.env.BASE_URL
 const AUTH = process.env.AUTH
 
-const getUsersWithContestAccess = async () => {
+const getUsersWithContestAccess = async (examName) => {
   var usersWithContestAccess
-  const resultData = await axios.get(BASE_URL + '/contestaccess.json?' + AUTH )
-  logger.info('resultData', resultData.data)
+  const resultData = await axios.get(BASE_URL + '/contestaccess/' + examName + '.json?' + AUTH )
   usersWithContestAccess = Object.values(resultData.data)
   return usersWithContestAccess
 }
@@ -240,7 +240,9 @@ exports.processXmlQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
 
     const uid = request.auth.uid;
     var flag = false;
-    const usersArray = await getUsersWithContestAccess()
+    const snap = await axios.get(`${BASE_URL}/adminaccess.json?${AUTH}`)
+    const usersArray = snap.data
+    // const usersArray = await getUsersWithContestAccess()
     for(var i=0;i<usersArray.length;i++) {
       if(usersArray[i] === uid) {
         flag = true;
@@ -339,10 +341,13 @@ exports.getContestQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
 exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
+    const contestName = request.data.contestName
+    const userEmail = request.data.userEmail
     var flag = false;
-    const usersArray = await getUsersWithContestAccess()
+    const usersArray = await getUsersWithContestAccess(contestName)
+    logger.info('array', usersArray)
     for(var i=0;i<usersArray.length;i++) {
-      if(usersArray[i] === uid) {
+      if(usersArray[i] === userEmail) {
         flag = true;
         break;
       }
@@ -364,6 +369,21 @@ exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   }
   return hasAccess
 })
+
+exports.hasContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
+  let hasAccess = false
+  try {
+    let flag = false
+    const uid = request.auth.uid;
+    const contestName = request.data.contestName
+    const contestData = axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/contestaccess/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+    return flag
+  } catch (error) {
+    console.error('Error', error);
+  }
+  return hasAccess
+})
+
 exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
@@ -577,12 +597,20 @@ exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   }
   let totalScore = {value: 0}
   try {
-    const uid = request.auth.uid;
+    // const uid = request.auth.uid;
+    const uid = request.data.userId;
     const contestName = request.data.contestName
+    const submissionType = request.data.submissionType
     let index = 0;
 
     let baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
-    const contestQuestions = await axios.get(baseUrl)
+    let contestQuestions = await axios.get(baseUrl)
+    let scoreType = submissionType
+    if(contestQuestions.data == null) {
+      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/archivedcontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      contestQuestions = await axios.get(baseUrl)
+  
+    }
     questionObjects = contestQuestions.data.questions
     logger.info('question Objects', questionObjects)
       questionObjects.forEach(question => {
@@ -597,7 +625,7 @@ exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
       for (let i = 0; i < questionObjects.length; i++) {
         
         let questionNumber = i + 1
-        await axios.get(BASE_URL + '/livecontestsubmission/' + contestName + '/' + uid + "/" + `answers/q` + questionNumber + ".json?" + AUTH)
+        await axios.get(BASE_URL + '/'+submissionType+'contestsubmission/' + contestName + '/' + uid + "/" + `answers/q` + questionNumber + ".json?" + AUTH)
           .then(async (snapshot) => {
             if (snapshot.data) {
               const userAnswers = snapshot.data;
@@ -677,12 +705,13 @@ exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
           totalScore.value += parseInt(questionObjects[questionNumber - 1].questionMarks)
         }
         else {
-          scores[a][questionNumber] = 0
+          scores[a][questionNumber] = -1
+          totalScore.value += -1
         }
       }
     }
-
-    await axios.put(BASE_URL + '/scores/' + contestName + '/' + uid + ".json?" + AUTH, {scores})
+    scores["totalObjective"] = totalScore
+    await axios.put(BASE_URL + '/'+ scoreType+'scores/' + contestName + '/' + uid + ".json?" + AUTH, {scores})
 
     
   } catch (error) {
@@ -755,16 +784,3 @@ exports.getImages = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
     
   }
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
