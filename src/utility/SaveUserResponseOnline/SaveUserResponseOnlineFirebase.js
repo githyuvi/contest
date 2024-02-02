@@ -20,27 +20,62 @@ async function saveNum(submissionType,  contestName,userId, questionLocation, an
         answer
     )
 }
+function copyFileWithNewName(originalFile, newFileName) {
+  const blobCopy = new Blob([originalFile], { type: originalFile.type });
 
-async function saveDes(submissionType, contestName, userId, questionLocation, files){
+  const fileCopy = new File([blobCopy], newFileName, { type: originalFile.type });
+
+  return fileCopy;
+}
+
+async function saveDes(submissionType, contestName, userId, questionLocation, files, firstdes){
+    //remove 'q' from questionLocation
+    let filesToSubmit = []
+    let questionNumber = Number(questionLocation.substring(1))
+    let subjectiveQuestionNumber = questionNumber - firstdes + 1
+    if(files.length == 1){
+      //extract file format
+      let fileFormat = files[0].name.split('.').pop()
+      let fileName = "B" + subjectiveQuestionNumber + "." + fileFormat
+      filesToSubmit.push(copyFileWithNewName(files[0], fileName))
+    }
+    if(files.length > 1){
+      for(let i = 0; i < files.length; i++){
+        let fileFormat = files[i].name.split('.').pop()
+        let fileName = "B" + subjectiveQuestionNumber + "-" + (i+1) + "." + fileFormat
+        filesToSubmit.push(copyFileWithNewName(files[i], fileName))
+      }
+    }
+
     const snapshot = await set(submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/images/", null)
     const storage = getStorage();
     var storageRef
     const tempFiles = []
     let pushToDataBase = []
-    for (let i = 0; i < files.length; i++) {
-      storageRef = firebaseStorageRef(storage, submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/" + files[i].name);
-      await uploadBytes(storageRef, files[i]).then(async (snapshot) => {
-        tempFiles.push(files[i])
-        // pushToDataBase.push = props.submissionType + "contestsubmission/" + props.contestName + "/" + userId.value + "/" + "answers/" + props.questionLocation + "/" + files[i].name
-        await set(submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/images/" + i,
-        submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/" + files[i].name
-      )
-      })
-        .catch((error) => {
-          console.log(error.message);
-        });
+
+  const uploadPromises = filesToSubmit.map((file, i) => {
+    const storageRef = firebaseStorageRef(storage, submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/" + file.name);
+
+    return uploadBytes(storageRef, file).then(async (snapshot) => {
+      tempFiles.push(file);
+
+      // Assuming set is an asynchronous function, wrap it in a Promise
+      return new Promise((resolve, reject) => {
+        set(submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/images/" + i,
+          submissionType + "contestsubmission/" + contestName + "/" + userId + "/" + "answers/" + questionLocation + "/" + file.name
+        )
+        .then(() => resolve())
+        .catch((error) => reject(error));
+      });
+    });
+  });
+
+try {
+  await Promise.all(uploadPromises);
+  console.log('All files uploaded successfully.');
+} catch (error) {
+  console.error('Error uploading files:', error);
 }
 }
 
 export {saveScMc, saveDes, saveMc, saveNum}
-//nrpchl7, kandharaja@iiitdm.ac.in

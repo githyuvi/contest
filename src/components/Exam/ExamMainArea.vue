@@ -80,13 +80,14 @@ const props = defineProps({
     questionsArray: Array,
     index: Number,
     contestStartTime: Number,
-    contestEndTime: Number
+    contestEndTime: Number,
+    contestName: String
 })
 const examHeaderRef = ref(null)
 const style = ref({})
 const totalAnswered = ref(0)
 const totalUnAnswered = ref(0)
-const header = ref('mock test 20')
+const header = ref(props.contestName.charAt(0).toUpperCase() + props.contestName.slice(1))
 const answerStatus = ref([])
 
 const emits = defineEmits(['onUserResponseChange', 'onSave', 'changeQuestion', 'showInstructionModal'])

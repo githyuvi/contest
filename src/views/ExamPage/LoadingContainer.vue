@@ -1,7 +1,7 @@
 <template>
     <div class="loading-container">
         <header></header>
-        <h1>{{ submissionType }} mock test will start in</h1>
+        <h1>Test starts in</h1>
         <h2>{{ hours }}h: {{ minutes }}m:{{ seconds }}s</h2>
         <button @click="() => router.push('/').then(() => window.location.reload())">Go Home</button>
     </div>

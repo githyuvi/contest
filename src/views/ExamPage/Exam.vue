@@ -18,16 +18,19 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import { get } from '../../utility/Database/FirebaseDatabase';
 import ExamWindow from '../../components/Exam/ExamWindow.vue';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 import Loading from 'vue-loading-overlay'
 import LoadingContainer from './LoadingContainer.vue';
+import { useStore } from 'vuex';
 
 const functions = getFunctions()
-
+const store = useStore()
+// connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 const isUserAdmin = httpsCallable(functions, 'isUserAdmin')
+const checkContestAccess = httpsCallable(functions, 'checkContestAccess')
 const router = useRouter()
 const route = useRoute()
 const contestName = ref(route.params.data)
@@ -42,6 +45,7 @@ const isExamOver = ref(false)
 const contestStartTime = ref(0)
 const contestEndTime = ref(0)
 const isAdmin = ref(false)
+const userEmail = computed(() => store.state.userEmail)
 
 onBeforeMount(async () => {
     const snapshot = await isUserAdmin()
@@ -49,7 +53,8 @@ onBeforeMount(async () => {
     // if user not admin, check is exam exists 
     if(snapshot.data == false){
         const examSnapshot = await get("livecontest/" + contestName.value)
-        if(examSnapshot.data == null){
+        console.log(examSnapshot.value)
+        if(examSnapshot.value == null){
             await router.push('/')
             window.location.reload()
         }
@@ -117,6 +122,19 @@ async function canUserViewExam(){
     if(result.data == true){
     return true
     }
+    
+    const checkContestAccessResult = await checkContestAccess({contestName: contestName.value, userEmail: userEmail.value})
+    // time delay of 2 seconds
+    console.log('check contest access result', checkContestAccessResult.data);
+
+    if(!checkContestAccessResult.data){
+        alert('Ask your teacher to give you access to this exam')
+        await router.push('/')
+        window.location.reload()
+    }
+    // else{
+        
+    // }
 
     const subType = getSubmissionType()
     console.log('subtype', subType);
@@ -124,6 +142,7 @@ async function canUserViewExam(){
         return true
     else
         return false
+    
 }
 
 function getLoadingType(){

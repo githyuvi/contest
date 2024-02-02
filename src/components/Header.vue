@@ -11,7 +11,7 @@
             <!-- header center visible if screen width greater than 600px -->
             <div class="hidden md:flex flex-wrap gap-4">
                 <div v-for="item,index in items" :key="index">
-                    <div class="cursor-pointer bg-gray-700 pr-4 pl-4">{{item}}</div>
+                    <router-link :to="`/${item.path}`"><div class="cursor-pointer bg-gray-700 pr-4 pl-4">{{item.name}}</div></router-link>
                 </div>
                 
             </div>
@@ -46,7 +46,12 @@ import { useStore } from 'vuex';
 const store = useStore()
 const isLoggedIn = computed(() => store.state.userId)
 
-const items = ["Home", "Register"]
+const items = [
+    {
+        path:'register',
+        name:'Register'
+    } 
+]
 
 onMounted(() => {
     console.log('Header mounted')
