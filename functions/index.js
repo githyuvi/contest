@@ -6,13 +6,13 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-
+const {setGlobalOptions} = require("firebase-functions/v2");
+setGlobalOptions({maxInstances: 10});
 const {onCall, onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const  axios  = require("axios")
 const DOMParser = require('xmldom').DOMParser;
-// const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, process.env.ALLOWED_ORIGIN3, process.env.ALLOWED_ORIGIN4, process.env.ALLOWED_ORIGIN5, "http://localhost:5173"]
-const ALLOWED_ORIGINS = ["http://localhost:5173"]
+const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]
 const BASE_URL = process.env.BASE_URL
 const AUTH = process.env.AUTH
 
@@ -26,7 +26,7 @@ const getUsersWithContestAccess = async (examName) => {
 const hasAdminAccess = async(uid) => {
   let flag = false
   var adminUsers
-  const resultData = await axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/adminaccess.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL' )
+  const resultData = await axios.get(BASE_URL + '/adminaccess.json?' + AUTH )
   adminUsers = Object.values(resultData.data)
   for(let i=0;i<adminUsers.length;i++) {
     if(adminUsers[i] === uid) {
@@ -216,9 +216,9 @@ function getQuestions(xmlDoc) {
   return questionObjects;
 }
 
-exports.getPollResults = onCall({cors: ALLOWED_ORIGINS},async (data,context) => {
+exports.getPollResults = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (data,context) => {
     var responseData = {}
-      await axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/poll.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL' ).then((result) => {
+      await axios.get(BASE_URL + '/poll.json?' + AUTH ).then((result) => {
                 const resultdata = Object.values(result.data)
                 console.log("result" + result)
                 console.log("resultdata" + resultdata)
@@ -235,7 +235,7 @@ exports.getPollResults = onCall({cors: ALLOWED_ORIGINS},async (data,context) => 
             return {responseData}    
 });
 
-exports.processXmlQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.processXmlQuestions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2]},async (request) => {
   try {
 
     const uid = request.auth.uid;
@@ -261,9 +261,9 @@ exports.processXmlQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
     const contestType = request.data.contestType
     var baseUrl
     if(contestType === 'democontest') 
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/democontest/' + uid + '/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/democontest/' + uid + '/' + contestName + '.json?' + AUTH
     if(contestType === 'livecontest') 
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/livecontest/' + contestName + '.json?' + AUTH
     logger.info('xmlString', xmlString)
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlStringReplaced, 'text/xml');
@@ -313,18 +313,18 @@ exports.processXmlQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
   }
 });
 
-exports.getContestQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.getContestQuestions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
     const contestType = request.data.contestType
     var baseUrl
     if(contestType === 'democontest') 
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/democontest/' + uid + '/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/democontest/' + uid + '/' + contestName + '.json?' + AUTH
     if(contestType === 'livecontest') 
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/livecontest/' + contestName + '.json?' + AUTH
     if(contestType === 'archivedcontest') 
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/archivedcontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/archivedcontest/' + contestName + '.json?' + AUTH
     const contestQuestions = await axios.get(baseUrl)
     // return everything except correctAnswer
     const questions = contestQuestions.data.questions
@@ -338,7 +338,7 @@ exports.getContestQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => 
   }
 })
 
-exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.checkContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -358,7 +358,7 @@ exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
     throw error;
   }
 })
-exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
+exports.isUserAdmin = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) =>{
   let hasAccess = false
   try {
     const uid = request.auth.uid;
@@ -370,13 +370,13 @@ exports.isUserAdmin = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   return hasAccess
 })
 
-exports.hasContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
+exports.hasContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) =>{
   let hasAccess = false
   try {
     let flag = false
     const uid = request.auth.uid;
     const contestName = request.data.contestName
-    const contestData = axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/contestaccess/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+    const contestData = axios.get(BASE_URL + '/contestaccess/' + contestName + '.json?' + AUTH)
     return flag
   } catch (error) {
     console.error('Error', error);
@@ -384,12 +384,12 @@ exports.hasContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   return hasAccess
 })
 
-exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.getCorrectAnswers = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     var flag = false;
     const contestName = request.data.contestName
-    const contestData = axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+    const contestData = axios.get(BASE_URL + '/livecontest/' + contestName + '.json?' + AUTH)
     const usersArray = await getUsersWithContestAccess()
     for(var i=0;i<usersArray.length;i++) {
       if(usersArray[i] === uid) {
@@ -404,12 +404,12 @@ exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   }
 })
 
-exports.getContests = onCall( {cors: ALLOWED_ORIGINS },async (request) => {
+exports.getContests = onCall( {cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"] },async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
     if(hasAccess){
-      const contests = await axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+      const contests = await axios.get(BASE_URL + '/livecontest.json?' + AUTH)
       return contests.data
     }
     else {
@@ -424,14 +424,14 @@ exports.getContests = onCall( {cors: ALLOWED_ORIGINS },async (request) => {
   }
 })
 
-// exports.getUserSubmissions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+// exports.getUserSubmissions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
 //   try {
 //     const uid = request.auth.uid;
 //     var baseUrl
 //     if(contestType === 'democontest') 
-//       baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/democontest/' + uid + '/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+//       baseUrl = BASE_URL + '/democontest/' + uid + '/' + contestName + '.json?' + AUTH
 //     if(contestType === 'livecontest') 
-//       baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+//       baseUrl = BASE_URL + '/livecontest/' + contestName + '.json?' + AUTH
 //     const contestQuestions = await axios.get(baseUrl)
 //     return contestQuestions.data.questions
 //   } catch (error) {
@@ -440,12 +440,12 @@ exports.getContests = onCall( {cors: ALLOWED_ORIGINS },async (request) => {
 //   }
 // })
 
-exports.getEvaluators = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.getEvaluators = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
     if(hasAccess){
-      const evaluators = await axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/evaluators.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+      const evaluators = await axios.get(BASE_URL + '/evaluators.json?' + AUTH)
       return evaluators.data
     }
     else {
@@ -460,13 +460,13 @@ exports.getEvaluators = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   }
 })
 
-exports.getContestSubmissions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.getContestSubmissions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
     const hasAccess = await hasAdminAccess(uid)
     if(hasAccess){
-      const contestSubmissionData = await axios.get('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontestsubmission/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL')
+      const contestSubmissionData = await axios.get(BASE_URL + '/livecontestsubmission/' + contestName + '.json?' + AUTH)
       return contestSubmissionData.data
     }
     else {
@@ -481,7 +481,7 @@ exports.getContestSubmissions = onCall({cors: ALLOWED_ORIGINS},async (request) =
   }
 })
 
-exports.setEvaluationAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.setEvaluationAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
@@ -490,7 +490,7 @@ exports.setEvaluationAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => 
       const contestName = request.data.contestName
       const questionNumbers = request.data.questionNumbers
       const studentIds = request.data.studentIds
-      await axios.put('https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/evaluationaccess/' + evaluatorId + '/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL',
+      await axios.put(BASE_URL + '/evaluationaccess/' + evaluatorId + '/' + contestName + '.json?' + AUTH,
       {"questionNumbers": questionNumbers, "studentIds":studentIds})
       return {
         status: 'success',
@@ -510,7 +510,7 @@ exports.setEvaluationAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => 
   }
 })
 
-exports.getAnswersForEvaluation = onCall({cors: ALLOWED_ORIGINS},async (request) => {
+exports.getAnswersForEvaluation = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
   try {
     const uid = request.auth.uid;
     let returnData = {}
@@ -571,7 +571,7 @@ exports.getAnswersForEvaluation = onCall({cors: ALLOWED_ORIGINS},async (request)
   }
 })
 
-exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
+exports.updateScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
   function arraysEqual(arr1, arr2) {
     if (arr1.length !== arr2.length) {
       return false;
@@ -603,11 +603,11 @@ exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
     const submissionType = request.data.submissionType
     let index = 0;
 
-    let baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/livecontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+    let baseUrl = BASE_URL + '/livecontest/' + contestName + '.json?' + AUTH
     let contestQuestions = await axios.get(baseUrl)
     let scoreType = submissionType
     if(contestQuestions.data == null) {
-      baseUrl = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app/archivedcontest/' + contestName + '.json?auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+      baseUrl = BASE_URL + '/archivedcontest/' + contestName + '.json?' + AUTH
       contestQuestions = await axios.get(baseUrl)
   
     }
@@ -721,7 +721,7 @@ exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   }
 })
 
-exports.updateEvaluatedScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
+exports.updateEvaluatedScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -752,7 +752,7 @@ exports.updateEvaluatedScore = onCall({cors: ALLOWED_ORIGINS}, async(request) =>
 })
 
 // function to fetch all scores
-exports.getAllScores = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
+exports.getAllScores = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -768,7 +768,7 @@ exports.getAllScores = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   }
 })
 
-exports.getImages = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
+exports.getImages = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName

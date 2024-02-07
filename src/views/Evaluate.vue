@@ -180,7 +180,7 @@ async function updateScore(userId, contestName){
     <header class="site-header">
         <div class="wrapper site-header__wrapper">
             <div class="site-header__start">
-                <a href="#" class="brand">CMI Tomato Evaluators</a>
+                <a href="#" class="brand">Vue Exams Evaluators</a>
 
             </div>
             <div class="site-header__middle">

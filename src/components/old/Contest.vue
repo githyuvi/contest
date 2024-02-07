@@ -689,7 +689,7 @@ onMounted(async () => {
     <div class="ending-exam-modal">
         <div class="ending-exam-content">
             <div class="instructions-area">
-                <div class="instructionsdiv">CMI Tomato</div>
+                <div class="instructionsdiv">Vue Exams</div>
                 <!-- <ol>
                     <li>Step 1: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
                     <li>Step 2: Nulla facilisi. Fusce aliquam interdum eros, eget mollis lectus feugiat ac.</li>

@@ -5,8 +5,8 @@
         <div class="flex items-center">
             <!-- Logo -->
             <div class="mr-10">
-                <a href="#" class="text-xl font-bold">CMI</a>
-                <a href="#" class="text-sm">Tomato</a>
+                <a href="#" class="text-xl font-bold">Vue</a>
+                <a href="#" class="text-sm">Exams</a>
             </div>
             <!-- header center visible if screen width greater than 600px -->
             <div class="hidden md:flex flex-wrap gap-4">

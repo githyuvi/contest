@@ -1,25 +1,58 @@
 <script setup >
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from 'vuex'
 import { ref as firebaseRef, getDatabase, get, child } from '@firebase/database';
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 const dbRef = firebaseRef(getDatabase());
+const auth = getAuth();
+const email = ref('');
+const password = ref('');
 
 const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
 
-    await signInWithPopup(getAuth(), provider).then(async (result) => {
+    await signInWithPopup(auth, provider).then(async (result) => {
         store.commit('setUserId', result.user.uid),
             store.commit('setUsername', result.user.displayName),
             store.commit('setUserEmail', result.user.email)
         store.commit('setUserImageUrl', result.user.photoURL)
 
-        await get(child(dbRef, `users/` + result.user.uid)).then((snapshot) => {
+    await afterSignIn(result.user.uid)
+
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+const signInWithEmailAndPasswordCustom = async(email,password) => {
+    console.log('email', email);
+    console.log('password', password);
+    signInWithEmailAndPassword(auth, email, password)
+    .then(async (userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log('user', user);
+        store.commit('setUserId', user.uid),
+        store.commit('setUsername', user.displayName),
+        store.commit('setUserEmail', user.email)
+        store.commit('setUserImageUrl', user.photoURL)
+        // ...
+
+        await afterSignIn(user.uid)
+    })
+    .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+    });
+}
+
+const afterSignIn = async(uid) => {
+    await get(child(dbRef, `users/` + uid)).then((snapshot) => {
             // console.log('snapshot', snapshot)
             if (snapshot.exists()) {
                 store.commit('setIsRegistered', true)
@@ -42,10 +75,6 @@ const signInWithGoogle = async () => {
             else
             await router.push('/register');
         }
-
-    }).catch((error) => {
-        console.log(error);
-    });
 }
 
 </script> 
@@ -54,7 +83,6 @@ const signInWithGoogle = async () => {
     <header style="height: 50px; width: 100%; background-color: #422d95;"></header>
     <div class="loginpage" style="text-align: center;">
 
-        <p>Welcome to CMI Tomato Mock Tests</p>
         <button class="gsi-material-button" @click="signInWithGoogle">
             <div class="gsi-material-button-state"></div>
             <div class="gsi-material-button-content-wrapper">
@@ -80,6 +108,14 @@ const signInWithGoogle = async () => {
                 <span style="display: none;">Continue with Google</span>
             </div>
         </button>
+        <br><br>
+        <!-- create a login with emailid and password form-->
+        <p>Or login with email and password</p>
+        <form @submit.prevent="() => signInWithEmailAndPasswordCustom(email,password)">
+            <input v-model="email" type="email" placeholder="Email" style="padding: 10px; margin: 10px; border-radius: 5px;">
+            <input v-model="password" type="password" placeholder="Password" style="padding: 10px; margin: 10px; border-radius: 5px;">
+            <button style="padding: 10px; margin: 10px; border-radius: 5px; background-color: #422d95; color: white;">Login</button>
+        </form>
 
 
 

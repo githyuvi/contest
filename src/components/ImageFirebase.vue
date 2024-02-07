@@ -1,4 +1,4 @@
-<template>
+b<template>
     <div>
       <ul>
         <li v-for="(url, index) in firebaseImageUrls" :key="index">
