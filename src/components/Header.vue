@@ -50,6 +50,10 @@ const items = [
     {
         path:'register',
         name:'Register'
+    },
+    {
+        path:'admin',
+        name:'AdminDashBoard'
     } 
 ]
 

@@ -116,6 +116,9 @@ const afterSignIn = async(uid) => {
             <input v-model="password" type="password" placeholder="Password" style="padding: 10px; margin: 10px; border-radius: 5px;">
             <button style="padding: 10px; margin: 10px; border-radius: 5px; background-color: #422d95; color: white;">Login</button>
         </form>
+        <p>Admin Credentials</p>
+        <p>Email: vuemock1@gmail.com</p>
+        <p>Password: VueExamAdmin21*</p>
 
 
 

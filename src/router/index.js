@@ -153,6 +153,14 @@ router.beforeEach(async (to, from, next) => {
         alert("You don't have access")
       }
     }
+    else{
+      alert('login as admin')
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath } // Pass the path user wanted to visit
+      });
+
+    }
   }
   else {
     next()
