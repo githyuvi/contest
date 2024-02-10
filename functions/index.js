@@ -12,7 +12,7 @@ const {onCall, onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const  axios  = require("axios")
 const DOMParser = require('xmldom').DOMParser;
-const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]
+const ALLOWED_ORIGINS = [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2]
 const BASE_URL = process.env.BASE_URL
 const AUTH = process.env.AUTH
 
@@ -216,7 +216,7 @@ function getQuestions(xmlDoc) {
   return questionObjects;
 }
 
-exports.getPollResults = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (data,context) => {
+exports.getPollResults = onCall({cors: ALLOWED_ORIGINS},async (data,context) => {
     var responseData = {}
       await axios.get(BASE_URL + '/poll.json?' + AUTH ).then((result) => {
                 const resultdata = Object.values(result.data)
@@ -313,7 +313,7 @@ exports.processXmlQuestions = onCall({cors: [process.env.ALLOWED_ORIGIN1, proces
   }
 });
 
-exports.getContestQuestions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.getContestQuestions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -338,7 +338,7 @@ exports.getContestQuestions = onCall({cors: [process.env.ALLOWED_ORIGIN1, proces
   }
 })
 
-exports.checkContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.checkContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -358,7 +358,7 @@ exports.checkContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process
     throw error;
   }
 })
-exports.isUserAdmin = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) =>{
+exports.isUserAdmin = onCall({cors: true},async (request) =>{
   let hasAccess = false
   try {
     const uid = request.auth.uid;
@@ -370,7 +370,7 @@ exports.isUserAdmin = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.AL
   return hasAccess
 })
 
-exports.hasContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) =>{
+exports.hasContestAccess = onCall({cors: ALLOWED_ORIGINS},async (request) =>{
   let hasAccess = false
   try {
     let flag = false
@@ -384,7 +384,7 @@ exports.hasContestAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.e
   return hasAccess
 })
 
-exports.getCorrectAnswers = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.getCorrectAnswers = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     var flag = false;
@@ -404,7 +404,7 @@ exports.getCorrectAnswers = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.
   }
 })
 
-exports.getContests = onCall( {cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"] },async (request) => {
+exports.getContests = onCall( {cors: ALLOWED_ORIGINS },async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
@@ -424,7 +424,7 @@ exports.getContests = onCall( {cors: [process.env.ALLOWED_ORIGIN1, process.env.A
   }
 })
 
-// exports.getUserSubmissions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+// exports.getUserSubmissions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
 //   try {
 //     const uid = request.auth.uid;
 //     var baseUrl
@@ -440,7 +440,7 @@ exports.getContests = onCall( {cors: [process.env.ALLOWED_ORIGIN1, process.env.A
 //   }
 // })
 
-exports.getEvaluators = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.getEvaluators = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
@@ -460,7 +460,7 @@ exports.getEvaluators = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.
   }
 })
 
-exports.getContestSubmissions = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.getContestSubmissions = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -481,7 +481,7 @@ exports.getContestSubmissions = onCall({cors: [process.env.ALLOWED_ORIGIN1, proc
   }
 })
 
-exports.setEvaluationAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.setEvaluationAccess = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     const hasAccess = await hasAdminAccess(uid)
@@ -510,7 +510,7 @@ exports.setEvaluationAccess = onCall({cors: [process.env.ALLOWED_ORIGIN1, proces
   }
 })
 
-exports.getAnswersForEvaluation = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]},async (request) => {
+exports.getAnswersForEvaluation = onCall({cors: ALLOWED_ORIGINS},async (request) => {
   try {
     const uid = request.auth.uid;
     let returnData = {}
@@ -571,7 +571,7 @@ exports.getAnswersForEvaluation = onCall({cors: [process.env.ALLOWED_ORIGIN1, pr
   }
 })
 
-exports.updateScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
+exports.updateScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   function arraysEqual(arr1, arr2) {
     if (arr1.length !== arr2.length) {
       return false;
@@ -721,7 +721,7 @@ exports.updateScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.AL
   }
 })
 
-exports.updateEvaluatedScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
+exports.updateEvaluatedScore = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -752,7 +752,7 @@ exports.updateEvaluatedScore = onCall({cors: [process.env.ALLOWED_ORIGIN1, proce
 })
 
 // function to fetch all scores
-exports.getAllScores = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
+exports.getAllScores = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
@@ -768,7 +768,7 @@ exports.getAllScores = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.A
   }
 })
 
-exports.getImages = onCall({cors: [process.env.ALLOWED_ORIGIN1, process.env.ALLOWED_ORIGIN2, "http://localhost:5173"]}, async(request) => {
+exports.getImages = onCall({cors: ALLOWED_ORIGINS}, async(request) => {
   try {
     const uid = request.auth.uid;
     const contestName = request.data.contestName
