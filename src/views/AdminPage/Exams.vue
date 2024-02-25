@@ -38,8 +38,8 @@ import ExamCard from '../../components/CommonComponents/ExamCard.vue';
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-const BASE_URL = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app'
-const AUTH = 'auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+const BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
+const AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
 const isLoading = ref(false)
 const examsKey = ref(0)
 

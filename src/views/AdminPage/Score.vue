@@ -82,8 +82,8 @@ const scores = ref([])
 const userIds = ref([])
 const contestName = ref('')
 const isLoading = ref(false)
-const BASE_URL = 'https://fir-algomuse-default-rtdb.asia-southeast1.firebasedatabase.app'
-const AUTH = 'auth=XqbLFwUKZuqoq8PRfGC1tpDqZxwOJVN92jrQgEYL'
+const BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
+const AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
 const userEmailByUid = ref({})
 const examSubmissions = ref([])
 const displayedImageIndex = ref(null);
