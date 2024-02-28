@@ -19,6 +19,9 @@
 
         <!-- header right -->
         <div class="flex items-center">
+            <div class="mr-4">
+                <span v-if="isLoggedIn">Welcome, {{extractUsername(userEmail)}}</span>
+            </div>
             <div>
                 <!-- Login/Sign Out buttons -->
                 <button v-if="!isLoggedIn" class="mr-2">
@@ -45,6 +48,7 @@ import { useStore } from 'vuex';
 
 const store = useStore()
 const isLoggedIn = computed(() => store.state.userId)
+const userEmail = computed(() => store.state.userEmail)
 
 const items = [
     {
@@ -56,6 +60,17 @@ const items = [
         name:'AdminDashBoard'
     } 
 ]
+
+const extractUsername = (userEmail) => {
+      // Extract username before "@" symbol
+      const atIndex = userEmail.indexOf('@');
+      if (atIndex !== -1) {
+        return userEmail.substring(0, atIndex);
+      } else {
+        // Handle invalid email
+        return '';
+      }
+}
 
 onMounted(() => {
     console.log('Header mounted')
