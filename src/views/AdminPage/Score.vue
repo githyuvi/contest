@@ -82,8 +82,8 @@ const scores = ref([])
 const userIds = ref([])
 const contestName = ref('')
 const isLoading = ref(false)
-const BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
-const AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
+const BASE_URL = process.env.VUE_APP_BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
+const AUTH = process.env.VUE_APP_AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
 const userEmailByUid = ref({})
 const examSubmissions = ref([])
 const displayedImageIndex = ref(null);

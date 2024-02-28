@@ -9,8 +9,8 @@ import Loading from 'vue-loading-overlay'
 const activeExams = ref([])
 const archivedExams = ref([])
 const isLoading = ref(false)
-const BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
-const AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
+const BASE_URL = process.env.VUE_APP_BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
+const AUTH = process.env.VUE_APP_AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
 
 async function fetchActiveExams(){
     isLoading.value = true

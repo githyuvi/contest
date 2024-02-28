@@ -46,8 +46,8 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import Loading from 'vue-loading-overlay'
-const BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
-const AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
+const BASE_URL = process.env.VUE_APP_BASE_URL = 'https://vueexam-15ff4-default-rtdb.firebaseio.com'
+const AUTH = process.env.VUE_APP_AUTH = 'auth=tvkUOXCOI0Ol1BhiFEsD5CZjnofCTcuLXIvqquVl'
 const examName = ref('')
 const usersWithAccess = ref([])
 const newUser = ref('')
