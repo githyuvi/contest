@@ -9,8 +9,8 @@ import Loading from 'vue-loading-overlay'
 const activeExams = ref([])
 const archivedExams = ref([])
 const isLoading = ref(false)
-const BASE_URL = import.meta.env.VITE_BASE_URL
-const AUTH = import.meta.env.VITE_AUTH
+const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VUE_APP_BASE_URL
+const AUTH = import.meta.env.VITE_AUTH || process.env.VUE_APP_AUTH
 
 async function fetchActiveExams(){
     isLoading.value = true

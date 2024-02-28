@@ -38,8 +38,8 @@ import ExamCard from '../../components/CommonComponents/ExamCard.vue';
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
-const AUTH = import.meta.env.VITE_AUTH
+const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VUE_APP_BASE_URL
+const AUTH = import.meta.env.VITE_AUTH || process.env.VUE_APP_AUTH
 const isLoading = ref(false)
 const examsKey = ref(0)
 

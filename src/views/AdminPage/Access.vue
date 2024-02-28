@@ -46,8 +46,8 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import Loading from 'vue-loading-overlay'
-const BASE_URL = import.meta.env.VITE_BASE_URL
-const AUTH = import.meta.env.VITE_AUTH
+const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VUE_APP_BASE_URL
+const AUTH = import.meta.env.VITE_AUTH || process.env.VUE_APP_AUTH
 const examName = ref('')
 const usersWithAccess = ref([])
 const newUser = ref('')

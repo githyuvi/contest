@@ -39,8 +39,8 @@ import { ref } from 'vue'
 import axios from 'axios'
 
 const contestNameForTimings = ref('')
-const BASE_URL = import.meta.env.VITE_BASE_URL
-const AUTH = import.meta.env.VITE_AUTH
+const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VUE_APP_BASE_URL
+const AUTH = import.meta.env.VITE_AUTH || process.env.VUE_APP_AUTH
 const isLoading = ref(false)
 const startTime = ref(0)
 const onlineEndTime = ref(0)
