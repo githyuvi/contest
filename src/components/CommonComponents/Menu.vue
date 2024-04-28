@@ -16,11 +16,11 @@
                 </button>
 
                 <!-- Mobile Dropdown Menu -->
-                <div id="mobileMenu" class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg">
-                    <!-- Add your mobile menu items here -->
-                    <div class="cursor-pointer px-4 py-2 bg-black hover:bg-gray-700">Mobile Home</div>
-                    <div class="cursor-pointer px-4 py-2 bg-black hover:bg-gray-700">Mobile Register</div>
-                    <!-- ... (additional mobile menu items) ... -->
+                <div id="mobileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
+                    
+                    <router-link :to="`/register`"><div class="cursor-pointer bg-gray-700 pr-4 pl-4 pb-2">Register</div></router-link>
+                    <router-link :to="`/admin`"><div class="cursor-pointer bg-gray-700 pr-4 pl-4">Admin Dashboard</div></router-link>
+                    
                 </div>
             </nav>
         </div>
